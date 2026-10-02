@@ -1,0 +1,547 @@
+{
+  "fetched_at": "2026-10-02T08:20:53+00:00",
+  "series": {
+    "boligpriser": {
+      "source": "SSB",
+      "table": "07221",
+      "critical": true,
+      "title": "07221: Prisindeks for brukte boliger, etter boligtype og region (2015=100) 1992K1-2026K2",
+      "cells": 3312,
+      "rows": 3312,
+      "ok": true
+    },
+    "bpi_norge": {
+      "source": "SSB",
+      "table": "07221",
+      "ok": true,
+      "first": "1992K1",
+      "last": "2026K2",
+      "n": 138,
+      "critical": true
+    },
+    "bpi_oslo": {
+      "source": "SSB",
+      "table": "07221",
+      "ok": true,
+      "first": "1992K1",
+      "last": "2026K2",
+      "n": 138,
+      "critical": true
+    },
+    "bpi_stavanger": {
+      "source": "SSB",
+      "table": "07221",
+      "ok": true,
+      "first": "1992K1",
+      "last": "2026K2",
+      "n": 138,
+      "critical": true
+    },
+    "bpi_bergen": {
+      "source": "SSB",
+      "table": "07221",
+      "ok": true,
+      "first": "1992K1",
+      "last": "2026K2",
+      "n": 138,
+      "critical": true
+    },
+    "bpi_trondheim": {
+      "source": "SSB",
+      "table": "07221",
+      "ok": true,
+      "first": "1992K1",
+      "last": "2026K2",
+      "n": 138,
+      "critical": true
+    },
+    "bpi_norge_sa": {
+      "source": "SSB",
+      "table": "07221",
+      "ok": true,
+      "first": "2005K1",
+      "last": "2026K2",
+      "n": 86,
+      "critical": true
+    },
+    "bpi_oslo_sa": {
+      "source": "SSB",
+      "table": "07221",
+      "ok": true,
+      "first": "2005K1",
+      "last": "2026K2",
+      "n": 86,
+      "critical": true
+    },
+    "bpi_stavanger_sa": {
+      "source": "SSB",
+      "table": "07221",
+      "ok": true,
+      "first": "2005K1",
+      "last": "2026K2",
+      "n": 86,
+      "critical": true
+    },
+    "bpi_bergen_sa": {
+      "source": "SSB",
+      "table": "07221",
+      "ok": true,
+      "first": "2005K1",
+      "last": "2026K2",
+      "n": 86,
+      "critical": true
+    },
+    "bpi_trondheim_sa": {
+      "source": "SSB",
+      "table": "07221",
+      "ok": true,
+      "first": "2005K1",
+      "last": "2026K2",
+      "n": 86,
+      "critical": true
+    },
+    "kpi": {
+      "source": "SSB",
+      "table": "14710",
+      "ok": true,
+      "first": "1920M03",
+      "last": "2026M08",
+      "n": 1278,
+      "critical": true
+    },
+    "befolkning": {
+      "source": "SSB",
+      "table": "01222",
+      "critical": false,
+      "title": "01222: Endringar i befolkninga i løpet av kvartalet, for kommunar, fylke og heile landet (K) 1997K4-2026K2",
+      "cells": 2990,
+      "rows": 2990,
+      "ok": true
+    },
+    "bef_norge": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "bef_oslo": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "bef_baerum": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "bef_bergen": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "bef_trondheim": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "bef_stavanger": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "nettoinnfl_norge": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "nettoinnfl_oslo": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "nettoinnfl_baerum": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "nettoinnfl_bergen": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "nettoinnfl_trondheim": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "nettoinnfl_stavanger": {
+      "source": "SSB",
+      "table": "01222",
+      "ok": true,
+      "first": "1997K4",
+      "last": "2026K2",
+      "n": 115,
+      "critical": false
+    },
+    "aku": {
+      "source": "SSB",
+      "table": "13760",
+      "critical": false,
+      "title": "13760: Arbeidsstyrken, sysselsatte, arbeidsledige og utførte ukeverk, etter kjønn og alder. Brudd- og sesongjusterte tall 2006M01-2026M08",
+      "cells": 496,
+      "rows": 496,
+      "ok": true
+    },
+    "aku_ledighet": {
+      "source": "SSB",
+      "table": "13760",
+      "ok": true,
+      "first": "2006M01",
+      "last": "2026M08",
+      "n": 248,
+      "critical": false
+    },
+    "aku_sysselsatt_andel": {
+      "source": "SSB",
+      "table": "13760",
+      "ok": true,
+      "first": "2009M01",
+      "last": "2026M08",
+      "n": 212,
+      "critical": false
+    },
+    "boliglansrente_ny": {
+      "source": "SSB",
+      "table": "10748",
+      "critical": false,
+      "title": "10748: Renter på nye boliglån, etter utlånstype, sektor og bindingstid. Utvalg av banker og kredittforetak (prosent) 2013M12-2026M08",
+      "cells": 306,
+      "rows": 306,
+      "ok": true
+    },
+    "rente_ny_total": {
+      "source": "SSB",
+      "table": "10748",
+      "ok": true,
+      "first": "2013M12",
+      "last": "2026M08",
+      "n": 153,
+      "critical": false
+    },
+    "rente_ny_flytende": {
+      "source": "SSB",
+      "table": "10748",
+      "ok": true,
+      "first": "2013M12",
+      "last": "2026M08",
+      "n": 153,
+      "critical": false
+    },
+    "boliglansrente_lang": {
+      "source": "SSB",
+      "table": "07200",
+      "critical": false,
+      "title": "07200: Renter på utestående utlån, etter långiver, utlånstype og sektor. Totaltelling (prosent) 1979K4-2026K2",
+      "cells": 374,
+      "rows": 374,
+      "ok": true
+    },
+    "rente_utest_bolig": {
+      "source": "SSB",
+      "table": "07200",
+      "ok": true,
+      "first": "2008K4",
+      "last": "2026K2",
+      "n": 71,
+      "critical": false
+    },
+    "rente_utest_total": {
+      "source": "SSB",
+      "table": "07200",
+      "ok": true,
+      "first": "2002K1",
+      "last": "2026K2",
+      "n": 98,
+      "critical": false
+    },
+    "igangsatte": {
+      "source": "SSB",
+      "table": "05889",
+      "critical": false,
+      "title": "05889: Byggeareal. Boliger og bruksareal til bolig, etter bygningstype, tilbygg/påbygg inkludert (K) 2000K1-2026K2",
+      "cells": 57876,
+      "rows": 57876,
+      "ok": true
+    },
+    "igang_norge": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "igang_oslo": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "igang_baerum": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "igang_bergen": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "igang_trondheim": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "igang_stavanger": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "fullf_norge": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "fullf_oslo": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "fullf_baerum": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "fullf_bergen": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "fullf_trondheim": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "fullf_stavanger": {
+      "source": "SSB",
+      "table": "05889",
+      "ok": true,
+      "first": "2000K1",
+      "last": "2026K2",
+      "n": 106,
+      "critical": false
+    },
+    "disponibel_inntekt": {
+      "source": "SSB",
+      "table": "11020",
+      "critical": false,
+      "title": "11020: Kvartalsvis inntekts- og kapitalregnskap, etter sektor 1999K1-2026K2",
+      "cells": 220,
+      "rows": 220,
+      "ok": true
+    },
+    "disp_inntekt": {
+      "source": "SSB",
+      "table": "11020",
+      "ok": true,
+      "first": "nan",
+      "last": "nan",
+      "n": 0,
+      "critical": false
+    },
+    "disp_inntekt_sa": {
+      "source": "SSB",
+      "table": "11020",
+      "ok": true,
+      "first": "nan",
+      "last": "nan",
+      "n": 0,
+      "critical": false
+    },
+    "byggekostnad": {
+      "source": "SSB",
+      "table": "08651",
+      "ok": true,
+      "first": "1978M01",
+      "last": "2026M08",
+      "n": 584,
+      "critical": false
+    },
+    "kreditt_k2": {
+      "source": "SSB",
+      "table": "11599",
+      "critical": false,
+      "title": "11599: Innenlandsk lånegjeld, sesongjusterte og ujusterte beholdninger og transaksjoner, etter valuta og låntakersektor 1985M12-2026M08",
+      "cells": 978,
+      "rows": 978,
+      "ok": true
+    },
+    "k2_hush_sa": {
+      "source": "SSB",
+      "table": "11599",
+      "ok": true,
+      "first": "1987M12",
+      "last": "2026M08",
+      "n": 465,
+      "critical": false
+    },
+    "k2_hush_vekst": {
+      "source": "SSB",
+      "table": "11599",
+      "ok": true,
+      "first": "1988M12",
+      "last": "2026M08",
+      "n": 453,
+      "critical": false
+    },
+    "styringsrente": {
+      "source": "Norges Bank",
+      "ok": true,
+      "critical": true,
+      "first": "1991-01-01",
+      "last": "2026-10-01",
+      "n": 9033
+    },
+    "statsveksel_12m": {
+      "source": "Norges Bank",
+      "ok": true,
+      "critical": false,
+      "first": "2019-01-02",
+      "last": "2026-10-01",
+      "n": 1944
+    },
+    "statsobl_3y": {
+      "source": "Norges Bank",
+      "ok": true,
+      "critical": false,
+      "first": "2019-01-02",
+      "last": "2026-10-01",
+      "n": 1944
+    },
+    "statsobl_5y": {
+      "source": "Norges Bank",
+      "ok": true,
+      "critical": false,
+      "first": "2019-01-02",
+      "last": "2026-10-01",
+      "n": 1944
+    },
+    "statsobl_10y": {
+      "source": "Norges Bank",
+      "ok": true,
+      "critical": false,
+      "first": "2019-01-02",
+      "last": "2026-10-01",
+      "n": 1944
+    },
+    "eurnok": {
+      "source": "Norges Bank",
+      "ok": true,
+      "critical": false,
+      "first": "1999-01-04",
+      "last": "2026-10-01",
+      "n": 6989
+    },
+    "brent_usd": {
+      "source": "FRED",
+      "ok": true,
+      "critical": false,
+      "first": "1987-05-20",
+      "last": "2026-09-29",
+      "n": 9097
+    }
+  }
+}

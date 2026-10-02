@@ -1,0 +1,108 @@
+name: Oppdater data og prognose
+
+on:
+  schedule:
+    # 16. og 26. hver måned kl. 05 UTC. SSB publiserer boligprisindeksen ca. 13 dager
+    # etter kvartalsslutt; kjøringen den 26. fanger opp eventuelle forsinkelser.
+    - cron: "0 5 16,26 * *"
+  push:
+    branches: [main]
+    paths: ["src/**", "web/**", "config/**", "tests/**", "requirements.txt",
+            ".github/workflows/update-data.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: data-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Sjekk filstruktur
+        run: |
+          missing=0
+          for f in config/sources.yaml requirements.txt \
+                   src/boligprognose/__init__.py src/boligprognose/ssb.py \
+                   src/boligprognose/market.py src/boligprognose/filters.py \
+                   src/boligprognose/fetch.py src/boligprognose/panel.py \
+                   src/boligprognose/verify.py src/boligprognose/features.py \
+                   src/boligprognose/model.py src/boligprognose/forecast.py \
+                   src/boligprognose/site.py \
+                   tests/conftest.py tests/test_datalag.py tests/test_model.py tests/synthetic.py \
+                   web/index.html web/app.js web/style.css; do
+            if [ ! -f "$f" ]; then echo "::error::Mangler $f"; missing=1; fi
+          done
+          for f in *.py *.yaml *.yml *.js *.css; do
+            if [ -e "$f" ]; then echo "::error::$f ligger i rotmappen – flytt den til riktig mappe eller slett den"; missing=1; fi
+          done
+          exit $missing
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Tester
+        id: tests
+        run: python -m pytest -q tests
+
+      - name: Hent data
+        id: fetch
+        run: python -m boligprognose.fetch
+
+      - name: Bygg paneler
+        id: panel
+        if: ${{ !cancelled() && steps.tests.outcome == 'success' }}
+        run: python -m boligprognose.panel
+
+      - name: Beregn prognose
+        id: forecast
+        if: ${{ !cancelled() && steps.panel.outcome == 'success' }}
+        run: python -m boligprognose.forecast
+
+      - name: Status i jobbsammendraget
+        if: ${{ !cancelled() && steps.tests.outcome == 'success' }}
+        run: |
+          if [ -f data/processed/status.md ]; then cat data/processed/status.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Commit data og prognose
+        if: ${{ !cancelled() && steps.tests.outcome == 'success' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for d in data output; do [ -d "$d" ] && git add "$d"; done
+          if git diff --staged --quiet; then
+            echo "Ingen endringer."
+          else
+            git commit -m "Data og prognose $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      # Publiser siste vellykkede prognose (også om en ikke-kritisk kilde feilet)
+      - name: Bygg nettside
+        if: ${{ !cancelled() && steps.tests.outcome == 'success' && hashFiles('output/forecast.json') != '' }}
+        run: python -m boligprognose.site
+      - uses: actions/configure-pages@v6
+        if: ${{ !cancelled() && steps.tests.outcome == 'success' && hashFiles('output/forecast.json') != '' }}
+      - uses: actions/upload-pages-artifact@v5
+        if: ${{ !cancelled() && steps.tests.outcome == 'success' && hashFiles('output/forecast.json') != '' }}
+        with:
+          path: _site
+      - name: Publiser til GitHub Pages
+        id: deployment
+        if: ${{ !cancelled() && steps.tests.outcome == 'success' && hashFiles('output/forecast.json') != '' }}
+        uses: actions/deploy-pages@v5

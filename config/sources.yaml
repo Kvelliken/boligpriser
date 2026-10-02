@@ -1,0 +1,174 @@
+# Datakilder for boligprognosemodellen.
+#
+# Filtre (select / series) er regulære uttrykk som matches mot både kode og
+# tekst (label) i SSB-tabellen, uten hensyn til store/små bokstaver.
+# Et filter kan også være {match: ..., exclude: ...}.
+#
+# Alle tabeller er verifisert mot SSB (oktober 2026). Ved endringer hos SSB:
+# kjør workflowen "Verifiser datakilder" og juster filtrene ut fra rapporten.
+
+ssb:
+  base_urls:
+    - https://data.ssb.no/api/pxwebapi/v2
+    - https://data.ssb.no/api/pxwebapi/v2-beta
+  lang: "no"
+  tables:
+
+    boligpriser:
+      table: "07221"
+      search: "prisindeks brukte boliger"
+      expect_title: "brukte boliger"
+      critical: true
+      select:
+        Boligtype: "^00$"                 # Alle boligtyper
+      series:
+        bpi_norge:        {Region: "^TOTAL$", ContentsCode: "^Boligindeks$"}
+        bpi_oslo:         {Region: "^001$",   ContentsCode: "^Boligindeks$"}
+        bpi_stavanger:    {Region: "^002$",   ContentsCode: "^Boligindeks$"}
+        bpi_bergen:       {Region: "^003$",   ContentsCode: "^Boligindeks$"}
+        bpi_trondheim:    {Region: "^004$",   ContentsCode: "^Boligindeks$"}
+        bpi_norge_sa:     {Region: "^TOTAL$", ContentsCode: "^SesJustBoligindeks$"}
+        bpi_oslo_sa:      {Region: "^001$",   ContentsCode: "^SesJustBoligindeks$"}
+        bpi_stavanger_sa: {Region: "^002$",   ContentsCode: "^SesJustBoligindeks$"}
+        bpi_bergen_sa:    {Region: "^003$",   ContentsCode: "^SesJustBoligindeks$"}
+        bpi_trondheim_sa: {Region: "^004$",   ContentsCode: "^SesJustBoligindeks$"}
+
+    kpi:
+      # 03013 (2015=100) ble avsluttet i desember 2025. Ny tabell har 2025=100.
+      table: "14710"
+      search: ["konsumprisindeks 2025=100", "konsumprisindeks etter måned"]
+      expect_title: "Konsumprisindeks"
+      critical: true
+      select:
+        ContentsCode: {match: "indeks|KPI", exclude: "endring|vekt"}
+      series:
+        kpi: {}
+
+    befolkning:
+      table: "01222"
+      search: "befolkningsendringer kvartal"
+      expect_title: "befolkning|folketal"
+      select:
+        Region: "^(0|Hele landet)$|^(Oslo|Bærum|Bergen|Trondheim|Stavanger)"
+        ContentsCode: "^(Folketallet11|Nettoinnflytting9)$"
+      series:
+        bef_norge:            {Region: "^0$",          ContentsCode: "^Folketallet11$",     _combine: coalesce}
+        bef_oslo:             {Region: "^Oslo",        ContentsCode: "^Folketallet11$",     _combine: coalesce}
+        bef_baerum:           {Region: "^Bærum",       ContentsCode: "^Folketallet11$",     _combine: coalesce}
+        bef_bergen:           {Region: "^Bergen",      ContentsCode: "^Folketallet11$",     _combine: coalesce}
+        bef_trondheim:        {Region: "^Trondheim",   ContentsCode: "^Folketallet11$",     _combine: coalesce}
+        bef_stavanger:        {Region: "^Stavanger",   ContentsCode: "^Folketallet11$",     _combine: coalesce}
+        nettoinnfl_norge:     {Region: "^0$",          ContentsCode: "^Nettoinnflytting9$", _combine: coalesce}
+        nettoinnfl_oslo:      {Region: "^Oslo",        ContentsCode: "^Nettoinnflytting9$", _combine: coalesce}
+        nettoinnfl_baerum:    {Region: "^Bærum",       ContentsCode: "^Nettoinnflytting9$", _combine: coalesce}
+        nettoinnfl_bergen:    {Region: "^Bergen",      ContentsCode: "^Nettoinnflytting9$", _combine: coalesce}
+        nettoinnfl_trondheim: {Region: "^Trondheim",   ContentsCode: "^Nettoinnflytting9$", _combine: coalesce}
+        nettoinnfl_stavanger: {Region: "^Stavanger",   ContentsCode: "^Nettoinnflytting9$", _combine: coalesce}
+
+    aku:
+      table: "13760"
+      search: "arbeidskraftundersøkelsen sesongjustert måned"
+      expect_title: "arbeidsledig|arbeidsstyrke"
+      select:
+        Kjonn: "^0$"
+        Alder: "^15-74$"
+        Justering: "^S$"                  # sesongjustert, enkeltmåned
+        ContentsCode: "^(ArbledProsArbstyrk|SysselProsBefolkn)$"
+      series:
+        aku_ledighet:        {ContentsCode: "^ArbledProsArbstyrk$"}
+        aku_sysselsatt_andel: {ContentsCode: "^SysselProsBefolkn$"}
+
+    boliglansrente_ny:
+      table: "10748"   # nye boliglån, månedlig fra 2013M12
+      search: "renter nye boliglån"
+      expect_title: "boliglån"
+      select:
+        Utlanstype: "^04$"               # totale utlån med pant i bolig
+        Sektor: "^04b$"                  # husholdninger
+        Rentebinding: "^(99|08)$"        # totalt og flytende
+      series:
+        rente_ny_total:    {Rentebinding: "^99$"}
+        rente_ny_flytende: {Rentebinding: "^08$"}
+
+    boliglansrente_lang:
+      table: "07200"   # utestående utlån, totaltelling, kvartalsvis fra 1979K4
+      search: "renter utestående utlån totaltelling"
+      expect_title: "utestående utlån"
+      select:
+        Laangiver960: "^02$"             # banker og kredittforetak
+        Utlanstype: "^(04|00b)$"         # pant i bolig / totale utlån
+        Sektor: "^04b$"                  # husholdninger
+      series:
+        rente_utest_bolig: {Utlanstype: "^04$"}
+        rente_utest_total: {Utlanstype: "^00b$"}
+
+    igangsatte:
+      table: "05889"   # igangsettingstillatelser og fullførte boliger, kvartalsvis per kommune
+      search: "byggeareal boliger bygningstype"
+      expect_title: "Byggeareal"
+      select:
+        Region: "^(0|Hele landet)$|^(Oslo|Bærum|Bergen|Trondheim|Stavanger)"
+        ContentsCode: "^(Igangsatte|Fullforte)$"
+      series:
+        igang_norge:     {Region: "^0$", ContentsCode: "^Igangsatte$", _sum_over: [Byggeareal], _combine: coalesce}
+        igang_oslo:      {Region: "^Oslo", ContentsCode: "^Igangsatte$", _sum_over: [Byggeareal], _combine: coalesce}
+        igang_baerum:    {Region: "^Bærum", ContentsCode: "^Igangsatte$", _sum_over: [Byggeareal], _combine: coalesce}
+        igang_bergen:    {Region: "^Bergen", ContentsCode: "^Igangsatte$", _sum_over: [Byggeareal], _combine: coalesce}
+        igang_trondheim: {Region: "^Trondheim", ContentsCode: "^Igangsatte$", _sum_over: [Byggeareal], _combine: coalesce}
+        igang_stavanger: {Region: "^Stavanger", ContentsCode: "^Igangsatte$", _sum_over: [Byggeareal], _combine: coalesce}
+        fullf_norge:     {Region: "^0$", ContentsCode: "^Fullforte$",  _sum_over: [Byggeareal], _combine: coalesce}
+        fullf_oslo:      {Region: "^Oslo", ContentsCode: "^Fullforte$",  _sum_over: [Byggeareal], _combine: coalesce}
+        fullf_baerum:    {Region: "^Bærum", ContentsCode: "^Fullforte$",  _sum_over: [Byggeareal], _combine: coalesce}
+        fullf_bergen:    {Region: "^Bergen", ContentsCode: "^Fullforte$",  _sum_over: [Byggeareal], _combine: coalesce}
+        fullf_trondheim: {Region: "^Trondheim", ContentsCode: "^Fullforte$",  _sum_over: [Byggeareal], _combine: coalesce}
+        fullf_stavanger: {Region: "^Stavanger", ContentsCode: "^Fullforte$",  _sum_over: [Byggeareal], _combine: coalesce}
+
+    disponibel_inntekt:
+      table: "11020"   # husholdningenes disponible inntekt ekskl. aksjeutbytte
+      search: "inntekts- og kapitalregnskap kvartal"
+      expect_title: "inntekts- og kapitalregnskap"
+      select:
+        Sektor: "^h140000$"              # husholdninger
+        Transaksjoner: "^I3491UAB_$"     # disponibel inntekt ekskl. aksjeutbytte
+        ContentsCode: "^(LPriser|LPriserS)$"
+      series:
+        disp_inntekt:    {ContentsCode: "^LPriser$"}
+        disp_inntekt_sa: {ContentsCode: "^LPriserS$"}
+
+    byggekostnad:
+      table: "08651"   # byggekostnadsindeks for boliger i alt (2015=100)
+      search: "byggekostnadsindeks"
+      expect_title: "byggekostnad"
+      select:
+        Arbeidstype: "^01$"
+        ContentsCode: "^Byggindeks$"
+      series:
+        byggekostnad: {}
+
+    kreditt_k2:
+      table: "11599"   # innenlandsk lånegjeld (K2), månedlig fra 1985M12
+      search: "innenlandsk lånegjeld"
+      expect_title: "lånegjeld"
+      select:
+        Valuta: "^00$"
+        Lantaker2: "^Kred04$"            # husholdninger mv.
+        ContentsCode: "^(BruttogjeldSes|AarsTrans2)$"
+      series:
+        k2_hush_sa:    {ContentsCode: "^BruttogjeldSes$"}
+        k2_hush_vekst: {ContentsCode: "^AarsTrans2$"}
+
+norgesbank:
+  base_url: https://data.norges-bank.no/api/data
+  start: "1990-01-01"
+  series:
+    styringsrente:    {flow: IR, key: B.KPRA.SD.R, critical: true}
+    statsveksel_12m:  {flow: GOVT_GENERIC_RATES, key: B.12M.TBIL}
+    statsobl_3y:      {flow: GOVT_GENERIC_RATES, key: B.3Y.GBON}
+    statsobl_5y:      {flow: GOVT_GENERIC_RATES, key: B.5Y.GBON}
+    statsobl_10y:     {flow: GOVT_GENERIC_RATES, key: B.10Y.GBON}
+    eurnok:           {flow: EXR, key: B.EUR.NOK.SP}
+
+fred:
+  base_url: https://fred.stlouisfed.org/graph/fredgraph.csv
+  series:
+    brent_usd: DCOILBRENTEU

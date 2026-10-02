@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boligpriser fremover</title>
+  <meta name="description" content="Prognoser for boligprisene i Norge, Oslo, Bergen, Trondheim og Stavanger, med usikkerhetsspenn. Oppdateres hver måned.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M4 15 16 5l12 10v13H4z' fill='%23A3362E'/></svg>">
+</head>
+<body>
+  <header class="masthead">
+    <h1>Boligpriser fremover</h1>
+    <p class="lede">Hvor kan boligprisene ligge om et halvt år, ett år, tre år og fem år? Det skraverte feltet viser hvor langt utfallet realistisk kan avvike fra det mest sannsynlige.</p>
+    <p class="stamp" id="stamp"></p>
+  </header>
+
+  <main>
+    <section class="controls" aria-label="Velg område og prisvisning">
+      <div class="regions" role="group" aria-label="Område" id="regions"></div>
+      <div class="mode" role="group" aria-label="Prisvisning">
+        <button type="button" data-mode="nominal" aria-pressed="true">Kroner</button>
+        <button type="button" data-mode="real" aria-pressed="false">Justert for inflasjon</button>
+      </div>
+    </section>
+
+    <section class="fan" aria-labelledby="fan-title">
+      <h2 id="fan-title" class="visually-hidden">Prisutvikling og prognose</h2>
+      <p class="readout" id="readout" aria-live="polite"></p>
+      <div class="chart" id="chart"></div>
+      <p class="chart-note" id="chart-note"></p>
+    </section>
+
+    <section class="horizons" aria-labelledby="hz-title">
+      <h2 id="hz-title">Endring fra siste kjente prisnivå</h2>
+      <p class="section-note" id="hz-note"></p>
+      <div id="strips" class="strips"></div>
+    </section>
+
+    <div class="two-col">
+      <section class="drivers" aria-labelledby="drv-title">
+        <h2 id="drv-title">Hva trekker prognosen</h2>
+        <p class="section-note">Bidrag til forventet realprisendring de neste fire kvartalene, i prosentpoeng, sammenlignet med en gjennomsnittlig situasjon.</p>
+        <ol id="drivers" class="driver-list"></ol>
+      </section>
+
+      <section class="accuracy" aria-labelledby="acc-title">
+        <h2 id="acc-title">Hvor godt har modellen truffet</h2>
+        <p class="section-note">Gjennomsnittlig bom i realpris når modellen er testet på historien med bare de dataene som var kjent på hvert tidspunkt. Til sammenligning: å anta uendret realpris.</p>
+        <table id="accuracy">
+          <thead><tr><th scope="col">Horisont</th><th scope="col">Modellen</th><th scope="col">Uendret pris</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </div>
+
+    <section class="about" aria-labelledby="about-title">
+      <h2 id="about-title">Slik er prognosen laget</h2>
+      <div class="prose" id="about"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Data: Statistisk sentralbyrå (CC BY 4.0), Norges Bank og FRED/U.S. EIA. Prognosene er modellberegninger og ikke råd om kjøp eller salg av bolig.</p>
+    <p id="source-link"></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

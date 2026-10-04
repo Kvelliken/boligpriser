@@ -108,12 +108,17 @@ def display_value(key, x):
 
 def ar1_projection(s, start_value, steps=20, min_obs=16):
     """Enkel AR(1)-fremskrivning mot historisk snitt (kun til illustrasjon)."""
-    s = s.dropna()
+    s = s[np.isfinite(s.astype(float))]
     if len(s) < min_obs or start_value is None or not np.isfinite(start_value):
         return None
-    x, y = s.values[:-1], s.values[1:]
+    x, y = s.values[:-1].astype(float), s.values[1:].astype(float)
     X = np.column_stack([np.ones_like(x), x])
-    c, phi = np.linalg.lstsq(X, y, rcond=None)[0]
+    try:
+        c, phi = np.linalg.lstsq(X, y, rcond=None)[0]
+    except np.linalg.LinAlgError:
+        return None
+    if not (np.isfinite(c) and np.isfinite(phi)):
+        return None
     phi = float(np.clip(phi, 0.0, 0.97))
     mean = float(s.mean()) if phi == 0 else float(np.mean(y) - phi * np.mean(x)) / (1 - phi)
     out, v = [], start_value
@@ -128,6 +133,30 @@ LONG_FEATURES = ["mom1", "mom4", "qval_gap", "relval_gap", "real_rate_at",
 EXTENDED_FEATURES = LONG_FEATURES + ["pop_g4", "starts_pc", "income_g4"]
 
 GAP_WINDOW, GAP_MIN = 40, 20   # 10 års glidende snitt, minst 5 år
+
+
+# Serier der verdiene er nivåer (indekser, beløp, antall) og logaritmen tas.
+LEVEL_PREFIXES = ("bpi_", "kpi", "byggekostnad", "brent_usd", "bef_", "disp_inntekt")
+
+
+def clean_levels(series):
+    """Behandle verdier <= 0 i nivåserier som manglende, og logg hvor de finnes.
+
+    SSB og andre kilder kan levere 0 der tallet egentlig mangler. Logaritmen av 0
+    gir minus uendelig, som ellers ville ødelagt hele beregningen.
+    """
+    out = {}
+    for name, s in series.items():
+        if name.startswith(LEVEL_PREFIXES):
+            bad = s[~(s > 0)]
+            if len(bad):
+                periods = [str(p) for p in bad.index]
+                shown = ", ".join(periods[:6]) + (f" … (+{len(periods) - 6})" if len(periods) > 6 else "")
+                log.warning("Serie %s har %d verdier <= 0 eller tomme (%s) – behandles som manglende",
+                            name, len(bad), shown)
+                s = s[s > 0]
+        out[name] = s
+    return out
 
 
 def tax_rate(year):
@@ -195,6 +224,9 @@ def national_frame(series):
     df["bki"] = bki.reindex(df.index) if bki is not None else np.nan
     disp = _q(series, "disp_inntekt_sa")
     pop = _q(series, "bef_norge")
+    if disp is None or pop is None:
+        log.warning("Inntektsvekst kan ikke beregnes: mangler %s",
+                    " og ".join(n for n, s in (("disp_inntekt_sa", disp), ("bef_norge", pop)) if s is None))
     if disp is not None and pop is not None:
         real_pc = np.log(disp / (df["kpi_q"].reindex(disp.index) * pop.reindex(disp.index)))
         df["income_g4"] = real_pc.diff(4).reindex(df.index)
@@ -244,9 +276,10 @@ def region_frame(region, series, nat):
 
 def build_panel(series):
     """Langt panel (region, kvartal) med alle variabler."""
-    nat = national_frame(series)
+    series = clean_levels(series)
+    nat = national_frame(series).replace([np.inf, -np.inf], np.nan)
     frames = [region_frame(r, series, nat) for r in REGIONS if REGIONS[r]["bpi"] in series]
-    panel = pd.concat(frames)
+    panel = pd.concat(frames).replace([np.inf, -np.inf], np.nan)
     panel.index.name = "period"
     return panel.reset_index().set_index(["region", "period"]).sort_index(), nat
 

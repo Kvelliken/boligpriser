@@ -19,8 +19,8 @@ import numpy as np
 import pandas as pd
 
 from .features import (DISPLAY_ALIAS, EXTENDED_FEATURES, FEATURE_LABELS, FEATURE_META, GROUPS,
-                       LONG_FEATURES, REGIONS, ar1_projection, build_panel, display_value,
-                       origin_overrides)
+                       LONG_FEATURES, REGIONS, ar1_projection, build_panel, clean_levels,
+                       display_value, origin_overrides)
 from .model import (COMPONENTS, H_MAX, accuracy_table, available_features, backtest,
                     ensemble_errors, fit_component, interval_offsets, origin_rows, weights_at)
 from .panel import load_series
@@ -145,7 +145,7 @@ def _alias(key):
 
 # -- Hovedløp ---------------------------------------------------------------------
 def run(data_dir, asof):
-    series = load_series(Path(data_dir) / "raw")
+    series = clean_levels(load_series(Path(data_dir) / "raw"))
     panel, nat = build_panel(series)
     feats_long = available_features(panel, LONG_FEATURES)
     feats_ext = available_features(panel, EXTENDED_FEATURES)
@@ -154,8 +154,14 @@ def run(data_dir, asof):
         log.warning("Variabler uten data (droppet): %s", dropped)
     all_feats = sorted(set(feats_long) | set(feats_ext))
 
-    regions = [r for r in REGIONS if r in set(panel.index.get_level_values("region"))]
     T = series["bpi_norge"].index.max()
+    regions = []
+    for r in REGIONS:
+        s = series.get(REGIONS[r]["bpi"])
+        if s is None or T not in s.index:
+            log.warning("Hopper over %s: mangler boligpris for %s", r, T)
+            continue
+        regions.append(r)
     kpi_m = series["kpi"]
     anchor = min(kpi_m.index.max(), asof)
     mid_T = T.asfreq("M", how="start") + 1
@@ -300,7 +306,8 @@ def run(data_dir, asof):
             if key not in all_feats or (key == "relval_gap" and r == "norge"):
                 continue
             hist = g[key][(g.index >= INPUT_HISTORY_FROM) & (g.index <= T)]
-            cur_raw = float(Xo.loc[(r, T), key]) if np.isfinite(Xo.loc[(r, T), key]) else None
+            cur_val = Xo.loc[(r, T), key] if (r, T) in Xo.index else np.nan
+            cur_raw = float(cur_val) if np.isfinite(cur_val) else None
             proj = ar1_projection(g[key][g.index >= pd.Period("1995Q1", "Q")], cur_raw)
             step = meta["step"]
             inputs.append({

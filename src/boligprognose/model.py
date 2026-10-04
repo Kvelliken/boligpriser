@@ -87,7 +87,7 @@ def targets(panel, h):
 
 def _training_rows(panel, feats, y, h, origin):
     periods = panel.index.get_level_values("period")
-    ok = (periods + h <= origin) & y.notna() & panel[feats].notna().all(axis=1)
+    ok = (periods + h <= origin) & np.isfinite(y) & np.isfinite(panel[feats]).all(axis=1)
     return panel[ok], y[ok]
 
 
@@ -105,10 +105,8 @@ def fit_component(name, panel, feats_long, feats_ext, h, origin):
         model = Ridge().fit(Xtr[feats], ytr, regs)
 
         def predict(Xo, model=model, feats=feats):
-            if Xo[feats].isna().any(axis=1).all():
-                return pd.Series(np.nan, index=Xo.index)
             out = pd.Series(np.nan, index=Xo.index)
-            ok = Xo[feats].notna().all(axis=1)
+            ok = np.isfinite(Xo[feats].astype(float)).all(axis=1)
             if ok.any():
                 out[ok] = model.predict(Xo.loc[ok, feats], Xo.index[ok].get_level_values("region"))
             return out

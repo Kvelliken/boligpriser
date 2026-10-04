@@ -111,3 +111,24 @@ def test_sanitize_rejects_missing_forecast_values():
     bad = {"regions": {"a": {"horizons": [{"nominal": {"p50": float("nan")}}]}}}
     with pytest.raises(ValueError):
         sanitize(bad)
+
+
+def test_zeros_in_level_series_do_not_break_forecast(tmp_path, monkeypatch, caplog):
+    """SSB kan levere 0 der tall mangler. Det skal behandles som manglende, ikke krasje."""
+    from synthetic import make_raw
+    raw = make_raw(tmp_path / "raw")
+    df = pd.read_csv(raw / "ssb_series.csv", dtype={"period": str})
+    early = df.series.eq("bpi_trondheim") & df.period.str[:4].astype(int).lt(1995)
+    df.loc[early, "value"] = 0.0
+    df.loc[df.series.eq("bef_baerum") & df.period.str.startswith("2003"), "value"] = 0.0
+    df = df[df.series != "disp_inntekt_sa"]
+    df.to_csv(raw / "ssb_series.csv", index=False)
+    monkeypatch.setattr(model, "BACKTEST_START", pd.Period("2016Q1", "Q"))
+    import logging
+    with caplog.at_level(logging.WARNING):
+        out = run(tmp_path, pd.Period("2026-10", "M"))
+    assert "bpi_trondheim" in caplog.text and "disp_inntekt_sa" in caplog.text
+    assert "income_g4" in out["features"]["dropped"]
+    for r in out["regions"].values():
+        for hz in r["horizons"]:
+            assert all(np.isfinite(v) for v in hz["nominal"].values())

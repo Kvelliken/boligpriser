@@ -61,5 +61,5 @@
 | statsobl_3y | Norges Bank | ✅ | 2019-01-02 | 2026-10-01 |  |
 | statsobl_5y | Norges Bank | ✅ | 2019-01-02 | 2026-10-01 |  |
 | statsobl_10y | Norges Bank | ✅ | 2019-01-02 | 2026-10-01 |  |
-| eurnok | Norges Bank | ✅ | 1999-01-04 | 2026-10-01 |  |
+| eurnok | Norges Bank | ✅ | 1999-01-04 | 2026-10-02 |  |
 | brent_usd | FRED | ✅ | 1987-05-20 | 2026-09-29 |  |

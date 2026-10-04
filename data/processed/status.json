@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-02T08:20:53+00:00",
+  "fetched_at": "2026-10-04T17:12:06+00:00",
   "series": {
     "boligpriser": {
       "source": "SSB",
@@ -532,8 +532,8 @@
       "ok": true,
       "critical": false,
       "first": "1999-01-04",
-      "last": "2026-10-01",
-      "n": 6989
+      "last": "2026-10-02",
+      "n": 6990
     },
     "brent_usd": {
       "source": "FRED",

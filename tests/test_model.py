@@ -64,23 +64,50 @@ def test_end_to_end_on_synthetic_data(tmp_path, monkeypatch):
     make_raw(tmp_path / "raw")
     monkeypatch.setattr(model, "BACKTEST_START", pd.Period("2016Q1", "Q"))
     out = run(tmp_path, pd.Period("2026-10", "M"))
+    # «Nå» er siste KPI-måned i de syntetiske dataene
+    assert out["anchor_month"] == "2026-08" and out["last_quarter"] == "2026K2"
     assert set(out["regions"]) == {"norge", "oslo", "bergen", "trondheim", "stavanger"}
     oslo = out["regions"]["oslo"]
     assert [h["label"] for h in oslo["horizons"]] == ["6 mnd", "1 år", "3 år", "5 år"]
+    assert [h["target"] for h in oslo["horizons"]] == ["2027-02", "2027-08", "2029-08", "2031-08"]
     for hz in oslo["horizons"]:
         vals = [hz["nominal"][k] for k in ("p05", "p10", "p25", "p50", "p75", "p90", "p95")]
         assert vals == sorted(vals)
-    assert len(oslo["forecast"]["quarters"]) == model.H_MAX
-    assert oslo["drivers"], "driverforklaring mangler"
-    assert out["monthly_update"].get("last_month") == "2026-08"
+    # Nedbrytningen skal summere til reell endring, og inflasjonen til nominell
+    for mo, d in oslo["decomposition"].items():
+        total = d["normal_pp"] + sum(i["pp"] for i in d["items"])
+        assert total == pytest.approx(d["real_pp"], abs=0.05), mo
+        assert d["real_pp"] + d["inflation_pp"] == pytest.approx(d["nominal_pp"], abs=0.05)
+    # Fanen starter i «nå», historikken slutter i midten av siste kjente kvartal
+    ch = oslo["chart"]
+    i_a = ch["months"].index("2026-08")
+    assert ch["fan"]["nominal"]["p50"][i_a] == pytest.approx(ch["now"]["nominal"][i_a])
+    assert ch["hist"]["nominal"][ch["months"].index("2026-05")] is not None
+    assert ch["hist"]["nominal"][ch["months"].index("2026-06")] is None
+    # Variabler fra begge modellene vises, med historikk som slutter i siste kjente kvartal
+    keys = {i["key"] for i in oslo["inputs"]}
+    assert {"real_rate_at", "pop_g4", "starts_pc", "income_g4"} <= keys
+    pop = next(i for i in oslo["inputs"] if i["key"] == "pop_g4")
+    assert pop["used_in"] == ["Utvidet modell"] and pop["history"]["quarters"][-1] == "2026K2"
+    assert "relval_gap" not in {i["key"] for i in out["regions"]["norge"]["inputs"]}
+    # Treffsikkerhet som tidsserie
+    acc = oslo["accuracy"]["12"]
+    assert len(acc["quarters"]) == len(acc["real"]["actual"]) == len(acc["real"]["pred"]) > 0
+    assert 0 <= acc["coverage"] <= 100
+
+
+def test_change_offsets_shrink_with_known_part():
+    from boligprognose.forecast import change_offsets
+    t = np.array([-0.2, -0.1, -0.05, 0, 0.05, 0.1, 0.2])
+    a = np.array([-0.1, -0.05, -0.02, 0, 0.02, 0.05, 0.1])
+    c = change_offsets(t, a)
+    assert c[3] == 0 and all(np.diff(c) >= 0) and abs(c[0]) < abs(t[0])
 
 
 def test_sanitize_rejects_missing_forecast_values():
     from boligprognose.forecast import sanitize
-    good = {"regions": {"a": {"forecast": {"nominal": {"p50": [1.0]}},
-                              "horizons": [{"nominal": {"p50": 2.0}}]}}, "x": float("nan")}
+    good = {"regions": {"a": {"horizons": [{"nominal": {"p50": 2.0}}]}}, "x": float("nan")}
     assert sanitize(good)["x"] is None
-    bad = {"regions": {"a": {"forecast": {"nominal": {"p50": [float("nan")]}},
-                             "horizons": []}}}
+    bad = {"regions": {"a": {"horizons": [{"nominal": {"p50": float("nan")}}]}}}
     with pytest.raises(ValueError):
         sanitize(bad)

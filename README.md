@@ -79,8 +79,21 @@ empiriske kvantiler av ensemblets faktiske bom i den samme testen, der modellen
 på hvert tidspunkt bare så data som var kjent da. Spennene tvinges til ikke å
 krympe med horisonten.
 
-Boligprisene er kvartalsvise. Mellom kvartalstallene oppdateres prognosen hver
-måned med ferskere tall for KPI, boliglånsrente og kreditt.
+Prognosene regnes fra «nå», definert som siste måned med KPI fra SSB.
+Boligprisindeksen er kvartalsvis og kommer senere, så prisnivået fra siste
+kjente kvartal frem til «nå» anslås med modellens korttidsprognoser. Endringen
+6, 12, 36 og 60 måneder frem måles fra dette anslåtte nivået. Usikkerheten for
+endringen fra «nå» beregnes som usikkerheten frem til målet minus den delen som
+allerede ligger i anslaget for «nå». Mellom kvartalstallene oppdateres renten,
+inflasjonen og kredittveksten med de tre siste månedene.
+
+Nettsiden viser en eksakt nedbrytning av hver prognose: «normal utvikling»
+(det modellen venter når alle variabler ligger på sitt historiske snitt for
+området, inkludert trendkomponenten) pluss bidraget fra hver variabel i begge
+regresjonsmodellene, vektet slik ensemblet faktisk teller dem. Hver variabel har
+også en egen visning med historikk, normalnivå, bidrag per horisont og følsomhet.
+Fremskrivningene av variablene (AR(1) mot historisk snitt) er en illustrasjon og
+inngår ikke i beregningen.
 
 Nominelle priser beregnes fra realprisprognosen og en inflasjonsbane der dagens
 tolvmånedersvekst går lineært mot 2 % over 24 måneder.

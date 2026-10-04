@@ -48,6 +48,81 @@ FEATURE_LABELS = {
     "income_g4": "Vekst i husholdningenes realinntekt",
 }
 
+# Visningsinformasjon for nettsiden. `kind`: "log" vises som (e^x - 1) * 100 %,
+# "pct" som x * 100, "level" uendret. `step` er endringen i følsomhetsberegningen (råenheter).
+FEATURE_META = {
+    "real_rate_at": {"group": "renter", "kind": "pct", "unit": "%", "step": 0.01,
+                     "step_text": "1 prosentpoeng høyere",
+                     "explain": "Boliglånsrenten etter rentefradrag og fratrukket prisveksten siste år. Viser hva lånet egentlig koster."},
+    "d_rate4": {"group": "renter", "kind": "pct", "unit": "pp", "step": 0.01,
+                "step_text": "1 prosentpoeng høyere",
+                "explain": "Hvor mye boliglånsrenten har endret seg det siste året. Renteoppganger demper markedet en stund etterpå."},
+    "credit_real": {"group": "renter", "kind": "pct", "unit": "%", "step": 0.01,
+                    "step_text": "1 prosentpoeng høyere",
+                    "explain": "Veksten i husholdningenes gjeld siste tolv måneder, fratrukket prisveksten."},
+    "pop_g4": {"group": "befolkning", "kind": "log", "unit": "%", "step": 0.005,
+               "step_text": "0,5 prosentpoeng høyere",
+               "explain": "Befolkningsveksten i området siste år, inkludert flytting og innvandring."},
+    "starts_pc": {"group": "befolkning", "kind": "level", "unit": "per 1000", "step": 1.0,
+                  "step_text": "1 bolig mer per 1000 innbyggere",
+                  "explain": "Igangsettingstillatelser for boliger siste tolv måneder per 1000 innbyggere. Mange nye boliger øker tilbudet."},
+    "income_g4": {"group": "okonomi", "kind": "log", "unit": "%", "step": 0.01,
+                  "step_text": "1 prosentpoeng høyere",
+                  "explain": "Vekst i husholdningenes disponible realinntekt per innbygger siste år (hele landet)."},
+    "oil_g4": {"group": "okonomi", "kind": "log", "unit": "%", "step": 0.10,
+               "step_text": "10 prosent høyere",
+               "explain": "Endringen i oljeprisen (Brent, dollar) siste år. Påvirker norsk økonomi, og særlig Stavanger."},
+    "qval_gap": {"group": "prisniva", "kind": "log", "unit": "%", "step": 0.10,
+                 "step_text": "10 prosent høyere",
+                 "explain": "Boligprisene sammenlignet med byggekostnadene, målt mot snittet de siste ti årene. Lavt nivå betyr at det er dyrt å bygge nytt i forhold til å kjøpe brukt."},
+    "relval_gap": {"group": "prisniva", "kind": "log", "unit": "%", "step": 0.10,
+                   "step_text": "10 prosent høyere",
+                   "explain": "Prisene i byen sammenlignet med hele landet, målt mot snittet de siste ti årene. Negativt betyr at byen har falt bak."},
+    "mom1": {"group": "prisniva", "kind": "log", "unit": "%", "step": 0.01,
+             "step_text": "1 prosentpoeng høyere",
+             "explain": "Den inflasjonsjusterte prisendringen siste kvartal. Boligmarkedet har fart, så trender varer gjerne en stund."},
+    "mom4": {"group": "prisniva", "kind": "log", "unit": "%", "step": 0.05,
+             "step_text": "5 prosentpoeng høyere",
+             "explain": "Den inflasjonsjusterte prisendringen siste år."},
+}
+GROUPS = {
+    "renter": "Renter og kreditt",
+    "befolkning": "Befolkning og bygging",
+    "okonomi": "Inntekt og olje",
+    "prisniva": "Prisnivå og trend",
+}
+# Variabler som slås sammen med en annen i visningen
+DISPLAY_ALIAS = {"oil_g4_stav": "oil_g4"}
+
+
+def display_value(key, x):
+    kind = FEATURE_META[key]["kind"]
+    if x is None or not np.isfinite(x):
+        return None
+    if kind == "log":
+        return float((np.exp(x) - 1) * 100)
+    if kind == "pct":
+        return float(x * 100)
+    return float(x)
+
+
+def ar1_projection(s, start_value, steps=20, min_obs=16):
+    """Enkel AR(1)-fremskrivning mot historisk snitt (kun til illustrasjon)."""
+    s = s.dropna()
+    if len(s) < min_obs or start_value is None or not np.isfinite(start_value):
+        return None
+    x, y = s.values[:-1], s.values[1:]
+    X = np.column_stack([np.ones_like(x), x])
+    c, phi = np.linalg.lstsq(X, y, rcond=None)[0]
+    phi = float(np.clip(phi, 0.0, 0.97))
+    mean = float(s.mean()) if phi == 0 else float(np.mean(y) - phi * np.mean(x)) / (1 - phi)
+    out, v = [], start_value
+    for _ in range(steps):
+        v = mean + phi * (v - mean)
+        out.append(float(v))
+    return out
+
+
 LONG_FEATURES = ["mom1", "mom4", "qval_gap", "relval_gap", "real_rate_at",
                  "d_rate4", "credit_real", "oil_g4", "oil_g4_stav"]
 EXTENDED_FEATURES = LONG_FEATURES + ["pop_g4", "starts_pc", "income_g4"]

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Boligpriser fremover</title>
-  <meta name="description" content="Prognoser for boligprisene i Norge, Oslo, Bergen, Trondheim og Stavanger, med usikkerhetsspenn. Oppdateres hver måned.">
+  <meta name="description" content="Prognoser for boligprisene i Norge, Oslo, Bergen, Trondheim og Stavanger, med usikkerhetsspenn og nedbrytning. Oppdateres hver måned.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&family=Spectral:wght@500;600&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
 <body>
   <header class="masthead">
     <h1>Boligpriser fremover</h1>
-    <p class="lede">Hvor kan boligprisene ligge om et halvt år, ett år, tre år og fem år? Det skraverte feltet viser hvor langt utfallet realistisk kan avvike fra det mest sannsynlige.</p>
+    <p class="lede">Hvor kan boligprisene ligge om et halvt år, ett år, tre år og fem år fra i dag? Det skraverte feltet viser hvor langt utfallet realistisk kan avvike fra det mest sannsynlige.</p>
     <p class="stamp" id="stamp"></p>
   </header>
 
@@ -27,38 +27,59 @@
       </div>
     </section>
 
-    <section class="fan" aria-labelledby="fan-title">
-      <h2 id="fan-title" class="visually-hidden">Prisutvikling og prognose</h2>
+    <nav class="tabs" role="tablist" aria-label="Visninger" id="tabs"></nav>
+
+    <section class="panel" id="panel-prognose" role="tabpanel" aria-labelledby="tab-prognose">
       <p class="readout" id="readout" aria-live="polite"></p>
-      <div class="chart" id="chart"></div>
-      <p class="chart-note" id="chart-note"></p>
+      <div class="chart" id="fan"></div>
+      <p class="chart-note" id="fan-note"></p>
+      <div class="block">
+        <h2>Endring fra i dag</h2>
+        <p class="section-note" id="hz-note"></p>
+        <div id="strips" class="strips"></div>
+      </div>
     </section>
 
-    <section class="horizons" aria-labelledby="hz-title">
-      <h2 id="hz-title">Endring fra siste kjente prisnivå</h2>
-      <p class="section-note" id="hz-note"></p>
-      <div id="strips" class="strips"></div>
+    <section class="panel" id="panel-drivere" role="tabpanel" aria-labelledby="tab-drivere" hidden>
+      <h2>Slik er prognosen bygget opp</h2>
+      <p class="section-note">Prognosen starter med det modellen venter i en helt normal situasjon for området. Deretter legges bidraget fra hver forklaringsvariabel til, ut fra hvor langt dagens verdi er fra det normale.</p>
+      <div class="horizon-pick" role="group" aria-label="Horisont" data-target="drivere"></div>
+      <div id="waterfall" class="waterfall"></div>
+      <p class="chart-note" id="waterfall-note"></p>
+      <div class="split">
+        <div>
+          <h3>Hvor mye hver modell teller</h3>
+          <p class="section-note">Fire modeller kombineres. Vektene bygger på hvor godt hver har truffet historisk på denne horisonten.</p>
+          <div id="weights" class="weights"></div>
+        </div>
+        <div>
+          <h3>Alle forklaringsvariabler</h3>
+          <p class="section-note">Hovedmodellen bruker variabler med lang historikk. Den utvidede modellen bruker i tillegg befolkning, boligbygging og inntekt.</p>
+          <table id="inputs-table" class="inputs-table">
+            <thead><tr><th scope="col">Variabel</th><th scope="col">I dag</th><th scope="col">Normalt</th><th scope="col">Bidrag</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
-    <div class="two-col">
-      <section class="drivers" aria-labelledby="drv-title">
-        <h2 id="drv-title">Hva trekker prognosen</h2>
-        <p class="section-note">Bidrag til forventet realprisendring de neste fire kvartalene, i prosentpoeng, sammenlignet med en gjennomsnittlig situasjon.</p>
-        <ol id="drivers" class="driver-list"></ol>
-      </section>
+    <section class="panel" id="panel-gruppe" role="tabpanel" hidden>
+      <p class="section-note group-intro">Modellen bruker dagens verdi av hver variabel. Den stiplede linjen viser hvordan variabelen typisk har utviklet seg videre fra et slikt nivå. Den er en illustrasjon og brukes ikke i beregningen.</p>
+      <div id="group-inputs"></div>
+    </section>
 
-      <section class="accuracy" aria-labelledby="acc-title">
-        <h2 id="acc-title">Hvor godt har modellen truffet</h2>
-        <p class="section-note">Gjennomsnittlig bom i realpris når modellen er testet på historien med bare de dataene som var kjent på hvert tidspunkt. Til sammenligning: å anta uendret realpris.</p>
-        <table id="accuracy">
-          <thead><tr><th scope="col">Horisont</th><th scope="col">Modellen</th><th scope="col">Uendret pris</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </section>
-    </div>
+    <section class="panel" id="panel-treff" role="tabpanel" aria-labelledby="tab-treff" hidden>
+      <h2>Hvor godt har modellen truffet</h2>
+      <p class="section-note">Hver prognose er laget med bare de dataene som var kjent på tidspunktet, og sammenlignes med det som faktisk skjedde. Linjene viser prisendringen over valgt horisont, plassert ved slutten av perioden.</p>
+      <div class="horizon-pick" role="group" aria-label="Horisont" data-target="treff"></div>
+      <p class="readout" id="acc-readout" aria-live="polite"></p>
+      <div class="chart" id="acc-chart"></div>
+      <div class="legend" id="acc-legend"></div>
+      <dl class="facts" id="acc-facts"></dl>
+    </section>
 
-    <section class="about" aria-labelledby="about-title">
-      <h2 id="about-title">Slik er prognosen laget</h2>
+    <section class="panel" id="panel-om" role="tabpanel" aria-labelledby="tab-om" hidden>
+      <h2>Slik er prognosen laget</h2>
       <div class="prose" id="about"></div>
     </section>
   </main>

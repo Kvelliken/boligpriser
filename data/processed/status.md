@@ -2,18 +2,18 @@
 
 | Serie | Kilde | Status | Første | Siste | Merknad |
 |---|---|---|---|---|---|
-| boligpriser | SSB | ✅ |  |  | 07221: Prisindeks for brukte boliger, etter boligtype og region (2015=100) 1992K1-2026K2 |
-| bpi_norge | SSB | ✅ | 1992K1 | 2026K2 |  |
-| bpi_oslo | SSB | ✅ | 1992K1 | 2026K2 |  |
-| bpi_stavanger | SSB | ✅ | 1992K1 | 2026K2 |  |
-| bpi_bergen | SSB | ✅ | 1992K1 | 2026K2 |  |
-| bpi_trondheim | SSB | ✅ | 1992K1 | 2026K2 |  |
-| bpi_norge_sa | SSB | ✅ | 2005K1 | 2026K2 |  |
-| bpi_oslo_sa | SSB | ✅ | 2005K1 | 2026K2 |  |
-| bpi_stavanger_sa | SSB | ✅ | 2005K1 | 2026K2 |  |
-| bpi_bergen_sa | SSB | ✅ | 2005K1 | 2026K2 |  |
-| bpi_trondheim_sa | SSB | ✅ | 2005K1 | 2026K2 |  |
-| kpi | SSB | ✅ | 1920M03 | 2026M08 |  |
+| boligpriser | SSB | ✅ |  |  | 07221: Prisindeks for brukte boliger, etter boligtype og region (2015=100) 1992K1-2026K3 |
+| bpi_norge | SSB | ✅ | 1992K1 | 2026K3 |  |
+| bpi_oslo | SSB | ✅ | 1992K1 | 2026K3 |  |
+| bpi_stavanger | SSB | ✅ | 1992K1 | 2026K3 |  |
+| bpi_bergen | SSB | ✅ | 1992K1 | 2026K3 |  |
+| bpi_trondheim | SSB | ✅ | 1992K1 | 2026K3 |  |
+| bpi_norge_sa | SSB | ✅ | 2005K1 | 2026K3 |  |
+| bpi_oslo_sa | SSB | ✅ | 2005K1 | 2026K3 |  |
+| bpi_stavanger_sa | SSB | ✅ | 2005K1 | 2026K3 |  |
+| bpi_bergen_sa | SSB | ✅ | 2005K1 | 2026K3 |  |
+| bpi_trondheim_sa | SSB | ✅ | 2005K1 | 2026K3 |  |
+| kpi | SSB | ✅ | 1920M03 | 2026M09 |  |
 | befolkning | SSB | ✅ |  |  | 01222: Endringar i befolkninga i løpet av kvartalet, for kommunar, fylke og heile landet (K) 1997K4-2026K2 |
 | bef_norge | SSB | ✅ | 1997K4 | 2026K2 |  |
 | bef_oslo | SSB | ✅ | 1997K4 | 2026K2 |  |
@@ -52,14 +52,14 @@
 | disponibel_inntekt | SSB | ✅ |  |  | 11020: Kvartalsvis inntekts- og kapitalregnskap, etter sektor 1999K1-2026K2 |
 | disp_inntekt | SSB | ✅ | nan | nan |  |
 | disp_inntekt_sa | SSB | ✅ | nan | nan |  |
-| byggekostnad | SSB | ✅ | 1978M01 | 2026M08 |  |
+| byggekostnad | SSB | ✅ | 1978M01 | 2026M09 |  |
 | kreditt_k2 | SSB | ✅ |  |  | 11599: Innenlandsk lånegjeld, sesongjusterte og ujusterte beholdninger og transaksjoner, etter valuta og låntakersektor  |
 | k2_hush_sa | SSB | ✅ | 1987M12 | 2026M08 |  |
 | k2_hush_vekst | SSB | ✅ | 1988M12 | 2026M08 |  |
-| styringsrente | Norges Bank | ✅ | 1991-01-01 | 2026-10-01 |  |
-| statsveksel_12m | Norges Bank | ✅ | 2019-01-02 | 2026-10-01 |  |
-| statsobl_3y | Norges Bank | ✅ | 2019-01-02 | 2026-10-01 |  |
-| statsobl_5y | Norges Bank | ✅ | 2019-01-02 | 2026-10-01 |  |
-| statsobl_10y | Norges Bank | ✅ | 2019-01-02 | 2026-10-01 |  |
-| eurnok | Norges Bank | ✅ | 1999-01-04 | 2026-10-02 |  |
-| brent_usd | FRED | ✅ | 1987-05-20 | 2026-09-29 |  |
+| styringsrente | Norges Bank | ✅ | 1991-01-01 | 2026-10-15 |  |
+| statsveksel_12m | Norges Bank | ✅ | 2019-01-02 | 2026-10-15 |  |
+| statsobl_3y | Norges Bank | ✅ | 2019-01-02 | 2026-10-15 |  |
+| statsobl_5y | Norges Bank | ✅ | 2019-01-02 | 2026-10-15 |  |
+| statsobl_10y | Norges Bank | ✅ | 2019-01-02 | 2026-10-15 |  |
+| eurnok | Norges Bank | ✅ | 1999-01-04 | 2026-10-15 |  |
+| brent_usd | FRED | ✅ | 1987-05-20 | 2026-10-14 |  |

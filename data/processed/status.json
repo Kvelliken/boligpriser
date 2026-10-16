@@ -1,13 +1,13 @@
 {
-  "fetched_at": "2026-10-04T18:40:44+00:00",
+  "fetched_at": "2026-10-16T09:39:30+00:00",
   "series": {
     "boligpriser": {
       "source": "SSB",
       "table": "07221",
       "critical": true,
-      "title": "07221: Prisindeks for brukte boliger, etter boligtype og region (2015=100) 1992K1-2026K2",
-      "cells": 3312,
-      "rows": 3312,
+      "title": "07221: Prisindeks for brukte boliger, etter boligtype og region (2015=100) 1992K1-2026K3",
+      "cells": 3336,
+      "rows": 3336,
       "ok": true
     },
     "bpi_norge": {
@@ -15,8 +15,8 @@
       "table": "07221",
       "ok": true,
       "first": "1992K1",
-      "last": "2026K2",
-      "n": 138,
+      "last": "2026K3",
+      "n": 139,
       "critical": true
     },
     "bpi_oslo": {
@@ -24,8 +24,8 @@
       "table": "07221",
       "ok": true,
       "first": "1992K1",
-      "last": "2026K2",
-      "n": 138,
+      "last": "2026K3",
+      "n": 139,
       "critical": true
     },
     "bpi_stavanger": {
@@ -33,8 +33,8 @@
       "table": "07221",
       "ok": true,
       "first": "1992K1",
-      "last": "2026K2",
-      "n": 138,
+      "last": "2026K3",
+      "n": 139,
       "critical": true
     },
     "bpi_bergen": {
@@ -42,8 +42,8 @@
       "table": "07221",
       "ok": true,
       "first": "1992K1",
-      "last": "2026K2",
-      "n": 138,
+      "last": "2026K3",
+      "n": 139,
       "critical": true
     },
     "bpi_trondheim": {
@@ -51,8 +51,8 @@
       "table": "07221",
       "ok": true,
       "first": "1992K1",
-      "last": "2026K2",
-      "n": 138,
+      "last": "2026K3",
+      "n": 139,
       "critical": true
     },
     "bpi_norge_sa": {
@@ -60,8 +60,8 @@
       "table": "07221",
       "ok": true,
       "first": "2005K1",
-      "last": "2026K2",
-      "n": 86,
+      "last": "2026K3",
+      "n": 87,
       "critical": true
     },
     "bpi_oslo_sa": {
@@ -69,8 +69,8 @@
       "table": "07221",
       "ok": true,
       "first": "2005K1",
-      "last": "2026K2",
-      "n": 86,
+      "last": "2026K3",
+      "n": 87,
       "critical": true
     },
     "bpi_stavanger_sa": {
@@ -78,8 +78,8 @@
       "table": "07221",
       "ok": true,
       "first": "2005K1",
-      "last": "2026K2",
-      "n": 86,
+      "last": "2026K3",
+      "n": 87,
       "critical": true
     },
     "bpi_bergen_sa": {
@@ -87,8 +87,8 @@
       "table": "07221",
       "ok": true,
       "first": "2005K1",
-      "last": "2026K2",
-      "n": 86,
+      "last": "2026K3",
+      "n": 87,
       "critical": true
     },
     "bpi_trondheim_sa": {
@@ -96,8 +96,8 @@
       "table": "07221",
       "ok": true,
       "first": "2005K1",
-      "last": "2026K2",
-      "n": 86,
+      "last": "2026K3",
+      "n": 87,
       "critical": true
     },
     "kpi": {
@@ -105,8 +105,8 @@
       "table": "14710",
       "ok": true,
       "first": "1920M03",
-      "last": "2026M08",
-      "n": 1278,
+      "last": "2026M09",
+      "n": 1279,
       "critical": true
     },
     "befolkning": {
@@ -456,8 +456,8 @@
       "table": "08651",
       "ok": true,
       "first": "1978M01",
-      "last": "2026M08",
-      "n": 584,
+      "last": "2026M09",
+      "n": 585,
       "critical": false
     },
     "kreditt_k2": {
@@ -492,56 +492,56 @@
       "ok": true,
       "critical": true,
       "first": "1991-01-01",
-      "last": "2026-10-01",
-      "n": 9033
+      "last": "2026-10-15",
+      "n": 9043
     },
     "statsveksel_12m": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-01",
-      "n": 1944
+      "last": "2026-10-15",
+      "n": 1954
     },
     "statsobl_3y": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-01",
-      "n": 1944
+      "last": "2026-10-15",
+      "n": 1954
     },
     "statsobl_5y": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-01",
-      "n": 1944
+      "last": "2026-10-15",
+      "n": 1954
     },
     "statsobl_10y": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-01",
-      "n": 1944
+      "last": "2026-10-15",
+      "n": 1954
     },
     "eurnok": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "1999-01-04",
-      "last": "2026-10-02",
-      "n": 6990
+      "last": "2026-10-15",
+      "n": 6999
     },
     "brent_usd": {
       "source": "FRED",
       "ok": true,
       "critical": false,
       "first": "1987-05-20",
-      "last": "2026-09-29",
-      "n": 9097
+      "last": "2026-10-14",
+      "n": 9108
     }
   }
 }

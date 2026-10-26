@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-16T09:39:30+00:00",
+  "fetched_at": "2026-10-26T10:58:05+00:00",
   "series": {
     "boligpriser": {
       "source": "SSB",
@@ -230,9 +230,9 @@
       "source": "SSB",
       "table": "13760",
       "critical": false,
-      "title": "13760: Arbeidsstyrken, sysselsatte, arbeidsledige og utførte ukeverk, etter kjønn og alder. Brudd- og sesongjusterte tall 2006M01-2026M08",
-      "cells": 496,
-      "rows": 496,
+      "title": "13760: Arbeidsstyrken, sysselsatte, arbeidsledige og utførte ukeverk, etter kjønn og alder. Brudd- og sesongjusterte tall 2006M01-2026M09",
+      "cells": 498,
+      "rows": 498,
       "ok": true
     },
     "aku_ledighet": {
@@ -240,8 +240,8 @@
       "table": "13760",
       "ok": true,
       "first": "2006M01",
-      "last": "2026M08",
-      "n": 248,
+      "last": "2026M09",
+      "n": 249,
       "critical": false
     },
     "aku_sysselsatt_andel": {
@@ -249,8 +249,8 @@
       "table": "13760",
       "ok": true,
       "first": "2009M01",
-      "last": "2026M08",
-      "n": 212,
+      "last": "2026M09",
+      "n": 213,
       "critical": false
     },
     "boliglansrente_ny": {
@@ -311,9 +311,9 @@
       "source": "SSB",
       "table": "05889",
       "critical": false,
-      "title": "05889: Byggeareal. Boliger og bruksareal til bolig, etter bygningstype, tilbygg/påbygg inkludert (K) 2000K1-2026K2",
-      "cells": 57876,
-      "rows": 57876,
+      "title": "05889: Byggeareal. Boliger og bruksareal til bolig, etter bygningstype, tilbygg/påbygg inkludert (K) 2000K1-2026K3",
+      "cells": 58422,
+      "rows": 58422,
       "ok": true
     },
     "igang_norge": {
@@ -321,8 +321,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "igang_oslo": {
@@ -330,8 +330,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "igang_baerum": {
@@ -339,8 +339,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "igang_bergen": {
@@ -348,8 +348,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "igang_trondheim": {
@@ -357,8 +357,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "igang_stavanger": {
@@ -366,8 +366,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "fullf_norge": {
@@ -375,8 +375,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "fullf_oslo": {
@@ -384,8 +384,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "fullf_baerum": {
@@ -393,8 +393,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "fullf_bergen": {
@@ -402,8 +402,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "fullf_trondheim": {
@@ -411,8 +411,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "fullf_stavanger": {
@@ -420,8 +420,8 @@
       "table": "05889",
       "ok": true,
       "first": "2000K1",
-      "last": "2026K2",
-      "n": 106,
+      "last": "2026K3",
+      "n": 107,
       "critical": false
     },
     "disponibel_inntekt": {
@@ -492,56 +492,56 @@
       "ok": true,
       "critical": true,
       "first": "1991-01-01",
-      "last": "2026-10-15",
-      "n": 9043
+      "last": "2026-10-23",
+      "n": 9049
     },
     "statsveksel_12m": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-15",
-      "n": 1954
+      "last": "2026-10-23",
+      "n": 1960
     },
     "statsobl_3y": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-15",
-      "n": 1954
+      "last": "2026-10-23",
+      "n": 1960
     },
     "statsobl_5y": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-15",
-      "n": 1954
+      "last": "2026-10-23",
+      "n": 1960
     },
     "statsobl_10y": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-15",
-      "n": 1954
+      "last": "2026-10-23",
+      "n": 1960
     },
     "eurnok": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "1999-01-04",
-      "last": "2026-10-15",
-      "n": 6999
+      "last": "2026-10-23",
+      "n": 7005
     },
     "brent_usd": {
       "source": "FRED",
       "ok": true,
       "critical": false,
       "first": "1987-05-20",
-      "last": "2026-10-14",
-      "n": 9108
+      "last": "2026-10-20",
+      "n": 9112
     }
   }
 }

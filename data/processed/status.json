@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-26T10:58:05+00:00",
+  "fetched_at": "2026-11-03T11:24:32+00:00",
   "series": {
     "boligpriser": {
       "source": "SSB",
@@ -257,9 +257,9 @@
       "source": "SSB",
       "table": "10748",
       "critical": false,
-      "title": "10748: Renter på nye boliglån, etter utlånstype, sektor og bindingstid. Utvalg av banker og kredittforetak (prosent) 2013M12-2026M08",
-      "cells": 306,
-      "rows": 306,
+      "title": "10748: Renter på nye boliglån, etter utlånstype, sektor og bindingstid. Utvalg av banker og kredittforetak (prosent) 2013M12-2026M09",
+      "cells": 308,
+      "rows": 308,
       "ok": true
     },
     "rente_ny_total": {
@@ -267,8 +267,8 @@
       "table": "10748",
       "ok": true,
       "first": "2013M12",
-      "last": "2026M08",
-      "n": 153,
+      "last": "2026M09",
+      "n": 154,
       "critical": false
     },
     "rente_ny_flytende": {
@@ -276,17 +276,17 @@
       "table": "10748",
       "ok": true,
       "first": "2013M12",
-      "last": "2026M08",
-      "n": 153,
+      "last": "2026M09",
+      "n": 154,
       "critical": false
     },
     "boliglansrente_lang": {
       "source": "SSB",
       "table": "07200",
       "critical": false,
-      "title": "07200: Renter på utestående utlån, etter långiver, utlånstype og sektor. Totaltelling (prosent) 1979K4-2026K2",
-      "cells": 374,
-      "rows": 374,
+      "title": "07200: Renter på utestående utlån, etter långiver, utlånstype og sektor. Totaltelling (prosent) 1979K4-2026K3",
+      "cells": 376,
+      "rows": 376,
       "ok": true
     },
     "rente_utest_bolig": {
@@ -294,8 +294,8 @@
       "table": "07200",
       "ok": true,
       "first": "2008K4",
-      "last": "2026K2",
-      "n": 71,
+      "last": "2026K3",
+      "n": 72,
       "critical": false
     },
     "rente_utest_total": {
@@ -303,8 +303,8 @@
       "table": "07200",
       "ok": true,
       "first": "2002K1",
-      "last": "2026K2",
-      "n": 98,
+      "last": "2026K3",
+      "n": 99,
       "critical": false
     },
     "igangsatte": {
@@ -464,9 +464,9 @@
       "source": "SSB",
       "table": "11599",
       "critical": false,
-      "title": "11599: Innenlandsk lånegjeld, sesongjusterte og ujusterte beholdninger og transaksjoner, etter valuta og låntakersektor 1985M12-2026M08",
-      "cells": 978,
-      "rows": 978,
+      "title": "11599: Innenlandsk lånegjeld, sesongjusterte og ujusterte beholdninger og transaksjoner, etter valuta og låntakersektor 1985M12-2026M09",
+      "cells": 980,
+      "rows": 980,
       "ok": true
     },
     "k2_hush_sa": {
@@ -474,8 +474,8 @@
       "table": "11599",
       "ok": true,
       "first": "1987M12",
-      "last": "2026M08",
-      "n": 465,
+      "last": "2026M09",
+      "n": 466,
       "critical": false
     },
     "k2_hush_vekst": {
@@ -483,8 +483,8 @@
       "table": "11599",
       "ok": true,
       "first": "1988M12",
-      "last": "2026M08",
-      "n": 453,
+      "last": "2026M09",
+      "n": 454,
       "critical": false
     },
     "styringsrente": {
@@ -492,56 +492,56 @@
       "ok": true,
       "critical": true,
       "first": "1991-01-01",
-      "last": "2026-10-23",
-      "n": 9049
+      "last": "2026-11-02",
+      "n": 9055
     },
     "statsveksel_12m": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-23",
-      "n": 1960
+      "last": "2026-11-02",
+      "n": 1966
     },
     "statsobl_3y": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-23",
-      "n": 1960
+      "last": "2026-11-02",
+      "n": 1966
     },
     "statsobl_5y": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-23",
-      "n": 1960
+      "last": "2026-11-02",
+      "n": 1966
     },
     "statsobl_10y": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "2019-01-02",
-      "last": "2026-10-23",
-      "n": 1960
+      "last": "2026-11-02",
+      "n": 1966
     },
     "eurnok": {
       "source": "Norges Bank",
       "ok": true,
       "critical": false,
       "first": "1999-01-04",
-      "last": "2026-10-23",
-      "n": 7005
+      "last": "2026-11-02",
+      "n": 7011
     },
     "brent_usd": {
       "source": "FRED",
       "ok": true,
       "critical": false,
       "first": "1987-05-20",
-      "last": "2026-10-20",
-      "n": 9112
+      "last": "2026-10-27",
+      "n": 9117
     }
   }
 }

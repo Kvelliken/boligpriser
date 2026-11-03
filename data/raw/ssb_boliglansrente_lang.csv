@@ -186,6 +186,7 @@ Laangiver960,Utlanstype,Sektor,ContentsCode,period,value,Laangiver960_label,Utla
 02,00b,04b,Utlaan,2025K4,5.3,Banker og kredittforetak,Totale utlån,Husholdninger,Renter på utestående utlån
 02,00b,04b,Utlaan,2026K1,5.29,Banker og kredittforetak,Totale utlån,Husholdninger,Renter på utestående utlån
 02,00b,04b,Utlaan,2026K2,5.29,Banker og kredittforetak,Totale utlån,Husholdninger,Renter på utestående utlån
+02,00b,04b,Utlaan,2026K3,5.66,Banker og kredittforetak,Totale utlån,Husholdninger,Renter på utestående utlån
 02,04,04b,Utlaan,1979K4,,Banker og kredittforetak,Totale utlån med pant i bolig,Husholdninger,Renter på utestående utlån
 02,04,04b,Utlaan,1980K1,,Banker og kredittforetak,Totale utlån med pant i bolig,Husholdninger,Renter på utestående utlån
 02,04,04b,Utlaan,1980K2,,Banker og kredittforetak,Totale utlån med pant i bolig,Husholdninger,Renter på utestående utlån
@@ -373,3 +374,4 @@ Laangiver960,Utlanstype,Sektor,ContentsCode,period,value,Laangiver960_label,Utla
 02,04,04b,Utlaan,2025K4,5.13,Banker og kredittforetak,Totale utlån med pant i bolig,Husholdninger,Renter på utestående utlån
 02,04,04b,Utlaan,2026K1,5.11,Banker og kredittforetak,Totale utlån med pant i bolig,Husholdninger,Renter på utestående utlån
 02,04,04b,Utlaan,2026K2,5.12,Banker og kredittforetak,Totale utlån med pant i bolig,Husholdninger,Renter på utestående utlån
+02,04,04b,Utlaan,2026K3,5.35,Banker og kredittforetak,Totale utlån med pant i bolig,Husholdninger,Renter på utestående utlån

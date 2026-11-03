@@ -152,6 +152,7 @@ Utlanstype,Sektor,Rentebinding,ContentsCode,period,value,Utlanstype_label,Sektor
 04,04b,99,RenterNyeBolig,2026M06,5.23,Totale utlån med pant i bolig,Husholdninger,Totalt,Renter på nye boliglån
 04,04b,99,RenterNyeBolig,2026M07,5.29,Totale utlån med pant i bolig,Husholdninger,Totalt,Renter på nye boliglån
 04,04b,99,RenterNyeBolig,2026M08,5.32,Totale utlån med pant i bolig,Husholdninger,Totalt,Renter på nye boliglån
+04,04b,99,RenterNyeBolig,2026M09,5.3,Totale utlån med pant i bolig,Husholdninger,Totalt,Renter på nye boliglån
 04,04b,08,RenterNyeBolig,2013M12,3.97,Totale utlån med pant i bolig,Husholdninger,Inntil 3 måneder (flytende rente),Renter på nye boliglån
 04,04b,08,RenterNyeBolig,2014M01,3.96,Totale utlån med pant i bolig,Husholdninger,Inntil 3 måneder (flytende rente),Renter på nye boliglån
 04,04b,08,RenterNyeBolig,2014M02,3.97,Totale utlån med pant i bolig,Husholdninger,Inntil 3 måneder (flytende rente),Renter på nye boliglån
@@ -305,3 +306,4 @@ Utlanstype,Sektor,Rentebinding,ContentsCode,period,value,Utlanstype_label,Sektor
 04,04b,08,RenterNyeBolig,2026M06,5.23,Totale utlån med pant i bolig,Husholdninger,Inntil 3 måneder (flytende rente),Renter på nye boliglån
 04,04b,08,RenterNyeBolig,2026M07,5.29,Totale utlån med pant i bolig,Husholdninger,Inntil 3 måneder (flytende rente),Renter på nye boliglån
 04,04b,08,RenterNyeBolig,2026M08,5.32,Totale utlån med pant i bolig,Husholdninger,Inntil 3 måneder (flytende rente),Renter på nye boliglån
+04,04b,08,RenterNyeBolig,2026M09,5.3,Totale utlån med pant i bolig,Husholdninger,Inntil 3 måneder (flytende rente),Renter på nye boliglån

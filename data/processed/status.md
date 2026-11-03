@@ -31,11 +31,11 @@
 | aku_ledighet | SSB | ✅ | 2006M01 | 2026M09 |  |
 | aku_sysselsatt_andel | SSB | ✅ | 2009M01 | 2026M09 |  |
 | boliglansrente_ny | SSB | ✅ |  |  | 10748: Renter på nye boliglån, etter utlånstype, sektor og bindingstid. Utvalg av banker og kredittforetak (prosent) 201 |
-| rente_ny_total | SSB | ✅ | 2013M12 | 2026M08 |  |
-| rente_ny_flytende | SSB | ✅ | 2013M12 | 2026M08 |  |
-| boliglansrente_lang | SSB | ✅ |  |  | 07200: Renter på utestående utlån, etter långiver, utlånstype og sektor. Totaltelling (prosent) 1979K4-2026K2 |
-| rente_utest_bolig | SSB | ✅ | 2008K4 | 2026K2 |  |
-| rente_utest_total | SSB | ✅ | 2002K1 | 2026K2 |  |
+| rente_ny_total | SSB | ✅ | 2013M12 | 2026M09 |  |
+| rente_ny_flytende | SSB | ✅ | 2013M12 | 2026M09 |  |
+| boliglansrente_lang | SSB | ✅ |  |  | 07200: Renter på utestående utlån, etter långiver, utlånstype og sektor. Totaltelling (prosent) 1979K4-2026K3 |
+| rente_utest_bolig | SSB | ✅ | 2008K4 | 2026K3 |  |
+| rente_utest_total | SSB | ✅ | 2002K1 | 2026K3 |  |
 | igangsatte | SSB | ✅ |  |  | 05889: Byggeareal. Boliger og bruksareal til bolig, etter bygningstype, tilbygg/påbygg inkludert (K) 2000K1-2026K3 |
 | igang_norge | SSB | ✅ | 2000K1 | 2026K3 |  |
 | igang_oslo | SSB | ✅ | 2000K1 | 2026K3 |  |
@@ -54,12 +54,12 @@
 | disp_inntekt_sa | SSB | ✅ | nan | nan |  |
 | byggekostnad | SSB | ✅ | 1978M01 | 2026M09 |  |
 | kreditt_k2 | SSB | ✅ |  |  | 11599: Innenlandsk lånegjeld, sesongjusterte og ujusterte beholdninger og transaksjoner, etter valuta og låntakersektor  |
-| k2_hush_sa | SSB | ✅ | 1987M12 | 2026M08 |  |
-| k2_hush_vekst | SSB | ✅ | 1988M12 | 2026M08 |  |
-| styringsrente | Norges Bank | ✅ | 1991-01-01 | 2026-10-23 |  |
-| statsveksel_12m | Norges Bank | ✅ | 2019-01-02 | 2026-10-23 |  |
-| statsobl_3y | Norges Bank | ✅ | 2019-01-02 | 2026-10-23 |  |
-| statsobl_5y | Norges Bank | ✅ | 2019-01-02 | 2026-10-23 |  |
-| statsobl_10y | Norges Bank | ✅ | 2019-01-02 | 2026-10-23 |  |
-| eurnok | Norges Bank | ✅ | 1999-01-04 | 2026-10-23 |  |
-| brent_usd | FRED | ✅ | 1987-05-20 | 2026-10-20 |  |
+| k2_hush_sa | SSB | ✅ | 1987M12 | 2026M09 |  |
+| k2_hush_vekst | SSB | ✅ | 1988M12 | 2026M09 |  |
+| styringsrente | Norges Bank | ✅ | 1991-01-01 | 2026-11-02 |  |
+| statsveksel_12m | Norges Bank | ✅ | 2019-01-02 | 2026-11-02 |  |
+| statsobl_3y | Norges Bank | ✅ | 2019-01-02 | 2026-11-02 |  |
+| statsobl_5y | Norges Bank | ✅ | 2019-01-02 | 2026-11-02 |  |
+| statsobl_10y | Norges Bank | ✅ | 2019-01-02 | 2026-11-02 |  |
+| eurnok | Norges Bank | ✅ | 1999-01-04 | 2026-11-02 |  |
+| brent_usd | FRED | ✅ | 1987-05-20 | 2026-10-27 |  |

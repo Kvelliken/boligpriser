@@ -173,6 +173,9 @@ def splice(primary, fallback):
         return primary
     overlap = primary.dropna().index.intersection(fallback.dropna().index)
     shift = (primary[overlap] - fallback[overlap]).mean() if len(overlap) else 0.0
+    # Bare bakover: perioder etter primærseriens siste tall skal ikke fylles med et
+    # nivåjustert anslag (det gir brå hopp). Dem håndterer extend_forward.
+    fallback = fallback[fallback.index < primary.dropna().index.max()]
     out = (fallback + shift).combine_first(primary)
     out.loc[primary.dropna().index] = primary.dropna()
     return out.sort_index()
@@ -195,16 +198,48 @@ def kpi_quarterly(series):
     return complete_quarter_mean(kpi) if kpi.index.freqstr.startswith("M") else kpi
 
 
+def extend_forward(primary, indicator):
+    """Forleng `primary` fremover med endringene i en ferskere indikator.
+
+    Brukes når en kvartalsserie publiseres senere enn andre data: siste kjente
+    nivå + endringen i indikatoren siden da.
+    """
+    if primary is None or indicator is None:
+        return primary
+    p, ind = primary.dropna(), indicator.dropna()
+    if p.empty or p.index.max() not in ind.index:
+        return primary
+    last = p.index.max()
+    new = ind[ind.index > last]
+    if new.empty:
+        return primary
+    ext = p.iloc[-1] + (new - ind[last])
+    return ext.combine_first(primary).sort_index()
+
+
 def mortgage_rate(series):
-    """Boliglånsrente (utestående, husholdninger), forlenget bakover med totale utlån."""
+    """Boliglånsrente for husholdningene (utestående lån), i prosent.
+
+    SSBs kvartalstall for boliglån finnes fra 2008 og forlenges bakover til 2002
+    med renten på alle lån. (Å forlenge videre til 1990-tallet med styringsrenten
+    ga dårligere treff i den historiske testen, og er derfor ikke gjort.)
+    Kvartalstallene publiseres sent; for de siste kvartalene brukes endringen i
+    renten på nye boliglån (månedlig), eller styringsrenten hvis den mangler.
+    """
     bolig, total = _q(series, "rente_utest_bolig"), _q(series, "rente_utest_total")
+    pol = _q(series, "styringsrente")
     rate = splice(bolig, total)
     if rate is None:
-        pol = series.get("styringsrente")
         if pol is None:
             raise ValueError("Mangler både boliglånsrente og styringsrente")
         log.warning("Bruker styringsrente + 2 pp som rentemål")
-        rate = to_quarterly(pol) + 2.0
+        rate = pol + 2.0
+    ny = series.get("rente_ny_total")
+    indicator = ny.groupby(ny.index.asfreq("Q")).mean() if ny is not None and not ny.empty else None
+    last_published = rate.dropna().index.max()
+    rate = extend_forward(rate, indicator)
+    rate = extend_forward(rate, pol)
+    rate.attrs["estimated_from"] = last_published + 1
     return rate
 
 
@@ -234,11 +269,53 @@ def national_frame(series):
         df["income_g4"] = np.nan
     base = df["kpi_q"][df.index.year == BASE_YEAR].mean()
     df["deflator"] = df["kpi_q"] / base
+    df.attrs["rate_estimated_from"] = rate.attrs.get("estimated_from")
     return df
 
 
 def _gap(s):
     return s - s.rolling(GAP_WINDOW, min_periods=GAP_MIN).mean()
+
+
+SEASON_WINDOW_YEARS = 7   # sesongmønsteret får endre seg langsomt over tid
+SEASON_MIN_YEARS = 3
+
+
+def seasonal_factors(log_level, until=None):
+    """Sesongledd per kvartal for en logaritmisk nivåserie (klassisk dekomponering).
+
+    1. Trend: sentrert glidende snitt over fire kvartaler (2x4).
+    2. Avvik fra trenden per kvartal (1.-4. kvartal) glattes over syv år, slik at
+       mønsteret kan endre seg gradvis.
+    3. Leddene sentreres slik at de summerer til null innen hvert år.
+    Fremtidige kvartaler (til og med `until`) får siste kjente mønster.
+
+    Returnerer en kvartalsserie med sesongleddet i log (0,025 = 2,5 % over årsnivået).
+    """
+    s = log_level.dropna()
+    end = max(s.index.max(), until) if until is not None and len(s) else (s.index.max() if len(s) else None)
+    if len(s) < 4 * (SEASON_MIN_YEARS + 1):
+        idx = pd.period_range(s.index.min(), end, freq="Q") if len(s) else log_level.index
+        return pd.Series(0.0, index=idx)
+    s = s.reindex(pd.period_range(s.index.min(), s.index.max(), freq="Q"))
+    trend = s.rolling(4).mean().rolling(2).mean().shift(-2)
+    si = s - trend
+    years = range(s.index.min().year, end.year + 1)
+    tab = pd.DataFrame({"y": si.index.year, "q": si.index.quarter, "v": si.values}) \
+        .pivot_table(index="y", columns="q", values="v", dropna=False) \
+        .reindex(index=years, columns=[1, 2, 3, 4])
+    smooth = tab.rolling(SEASON_WINDOW_YEARS, center=True, min_periods=SEASON_MIN_YEARS).mean()
+    smooth.loc[smooth.index > s.index.max().year] = np.nan   # fremtiden: siste kjente mønster
+    smooth = smooth.ffill().bfill()
+    smooth = smooth.sub(smooth.mean(axis=1), axis=0)
+    idx = pd.period_range(s.index.min(), end, freq="Q")
+    return pd.Series([float(smooth.loc[p.year, p.quarter]) for p in idx], index=idx)
+
+
+def region_season(series, region, until=None):
+    """Sesongleddet for boligprisen i en region (nominell indeks)."""
+    bpi = series[REGIONS[region]["bpi"]]
+    return seasonal_factors(np.log(bpi), until)
 
 
 def _sum_series(series, names):
@@ -249,18 +326,23 @@ def _sum_series(series, names):
     return pd.concat(parts, axis=1).sum(axis=1, min_count=len(parts))
 
 
-def region_frame(region, series, nat):
+def region_frame(region, series, nat, norge_sa=None):
     meta = REGIONS[region]
     bpi = series[meta["bpi"]]
-    norge = series["bpi_norge"]
     df = pd.DataFrame(index=nat.index.union(bpi.index))
     df["bpi"] = bpi
     df = df.join(nat)
-    df["lp_real"] = np.log(df["bpi"] / df["deflator"])
+    # Boligprisene har et fast årsmønster (høyest i 2. kvartal, lavest i 4.).
+    # Modellen arbeider med sesongjusterte priser; mønsteret legges på igjen i prognosen.
+    df["season"] = region_season(series, region).reindex(df.index)
+    df["bpi_sa"] = df["bpi"] * np.exp(-df["season"])
+    df["lp_real"] = np.log(df["bpi_sa"] / df["deflator"])
     df["mom1"] = df["lp_real"].diff(1)
     df["mom4"] = df["lp_real"].diff(4)
-    df["qval_gap"] = _gap(np.log(df["bpi"] / df["bki"]))
-    rel = np.log(df["bpi"] / norge.reindex(df.index))
+    df["qval_gap"] = _gap(np.log(df["bpi_sa"] / df["bki"]))
+    if norge_sa is None:
+        norge_sa = series["bpi_norge"] * np.exp(-region_season(series, "norge"))
+    rel = np.log(df["bpi_sa"] / norge_sa.reindex(df.index))
     df["relval_gap"] = 0.0 if region == "norge" else _gap(rel)
     df["oil_g4_stav"] = df["oil_g4"] if region == "stavanger" else 0.0
     pop = _sum_series(series, meta["pop"])
@@ -278,7 +360,8 @@ def build_panel(series):
     """Langt panel (region, kvartal) med alle variabler."""
     series = clean_levels(series)
     nat = national_frame(series).replace([np.inf, -np.inf], np.nan)
-    frames = [region_frame(r, series, nat) for r in REGIONS if REGIONS[r]["bpi"] in series]
+    norge_sa = series["bpi_norge"] * np.exp(-region_season(series, "norge"))
+    frames = [region_frame(r, series, nat, norge_sa) for r in REGIONS if REGIONS[r]["bpi"] in series]
     panel = pd.concat(frames).replace([np.inf, -np.inf], np.nan)
     panel.index.name = "period"
     return panel.reset_index().set_index(["region", "period"]).sort_index(), nat
@@ -320,3 +403,25 @@ def origin_overrides(series, nat, origin, asof):
     out["infl4"] = infl4
     out["last_month"] = str(last_m)
     return out
+
+
+def fill_ragged_edge(Xo, panel, origin, feats, max_lag=4):
+    """Fyll variabler som ennå ikke er publisert for prognosestarten.
+
+    Statistikk kommer med ulik forsinkelse. Mangler en variabel for siste kvartal,
+    brukes siste kjente verdi (høyst `max_lag` kvartaler gammel), slik at alle
+    modellene kan brukes. Returnerer utfylt tabell og hvilket kvartal hver
+    utfylte verdi kommer fra.
+    """
+    Xo = Xo.copy()
+    notes = {}
+    for (region, period) in Xo.index:
+        g = panel.xs(region, level="region")
+        for f in feats:
+            if f not in Xo or np.isfinite(Xo.loc[(region, period), f]):
+                continue
+            hist = g[f][(g.index < origin) & (g.index >= origin - max_lag)].dropna()
+            if len(hist):
+                Xo.loc[(region, period), f] = hist.iloc[-1]
+                notes[(region, f)] = hist.index[-1]
+    return Xo, notes

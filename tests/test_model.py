@@ -75,7 +75,7 @@ def test_end_to_end_on_synthetic_data(tmp_path, monkeypatch):
         assert vals == sorted(vals)
     # Nedbrytningen skal summere til reell endring, og inflasjonen til nominell
     for mo, d in oslo["decomposition"].items():
-        total = d["normal_pp"] + sum(i["pp"] for i in d["items"])
+        total = d["normal_pp"] + d["season_pp"] + sum(i["pp"] for i in d["items"])
         assert total == pytest.approx(d["real_pp"], abs=0.05), mo
         assert d["real_pp"] + d["inflation_pp"] == pytest.approx(d["nominal_pp"], abs=0.05)
     # Fanen starter i «nå», historikken slutter i midten av siste kjente kvartal
@@ -132,3 +132,54 @@ def test_zeros_in_level_series_do_not_break_forecast(tmp_path, monkeypatch, capl
     for r in out["regions"].values():
         for hz in r["horizons"]:
             assert all(np.isfinite(v) for v in hz["nominal"].values())
+
+
+def test_seasonal_factors_recover_known_pattern():
+    from boligprognose.features import seasonal_factors
+    from synthetic import SEASON
+    rng = np.random.default_rng(3)
+    q = pd.period_range("1995Q1", "2026Q3", freq="Q")
+    trend = np.cumsum(0.01 + rng.normal(0, 0.01, len(q)))
+    s = pd.Series(trend + [SEASON[p.quarter] for p in q], index=q)
+    f = seasonal_factors(s, until=pd.Period("2028Q4", "Q"))
+    assert f.index.max() == pd.Period("2028Q4", "Q")
+    for p in (pd.Period("2015Q2", "Q"), pd.Period("2026Q4", "Q"), pd.Period("2028Q4", "Q")):
+        assert f[p] == pytest.approx(SEASON[p.quarter], abs=0.004)
+    # Summerer til null over et år, og fremtiden gjentar siste kjente mønster
+    assert f[f.index.year == 2020].sum() == pytest.approx(0, abs=1e-9)
+    assert f[pd.Period("2028Q2", "Q")] == pytest.approx(f[pd.Period("2027Q2", "Q")])
+
+
+def test_extend_forward_and_splice_only_backwards():
+    from boligprognose.features import extend_forward
+    idx = pd.period_range("2020Q1", "2020Q4", freq="Q")
+    primary = pd.Series([3.0, 3.0, np.nan, np.nan], index=idx)
+    indicator = pd.Series([2.0, 2.0, 2.5, 3.0], index=idx)
+    assert extend_forward(primary, indicator).tolist() == [3.0, 3.0, 3.5, 4.0]
+    # splice skal ikke fylle perioder etter primærseriens siste tall
+    assert splice(primary, indicator).dropna().index.max() == idx[1]
+
+
+def test_forecast_follows_seasonal_pattern_and_uses_all_models(tmp_path, monkeypatch):
+    """Prognosen skal ha samme årsmønster som historikken, også når renten for siste kvartal mangler."""
+    from synthetic import SEASON, make_raw
+    make_raw(tmp_path / "raw", rate_lag=1)
+    monkeypatch.setattr(model, "BACKTEST_START", pd.Period("2016Q1", "Q"))
+    out = run(tmp_path, pd.Period("2026-10", "M"))
+    norge = out["regions"]["norge"]
+    # Begge regresjonsmodellene er med selv om kvartalsrenten for 2026K2 mangler
+    w = norge["decomposition"]["12"]["weights"]
+    assert w.get("Hovedmodellen", 0) > 0 and w.get("Utvidet modell", 0) > 0
+    rate = next(i for i in norge["inputs"] if i["key"] == "real_rate_at")
+    assert rate["current"] is not None
+    # Sesongprofilen er gjenfunnet
+    assert norge["season"]["pct"][1] > 1.5 and norge["season"]["pct"][3] < -1.5
+    # Prognosen (median, realpris) har bunn midt i 4. kvartal og topp midt i 2. kvartal
+    ch = norge["chart"]
+    p50 = dict(zip(ch["months"], ch["fan"]["real"]["p50"]))
+    assert p50["2026-11"] < p50["2026-08"] and p50["2026-11"] < p50["2027-02"] < p50["2027-05"]
+    assert p50["2027-11"] < p50["2027-08"]
+    # Sesongbidraget på 6 mnd (august -> februar) følger mønsteret, og er null på hele år
+    d = norge["decomposition"]
+    assert d["6"]["season_pp"] == pytest.approx((SEASON[1] - SEASON[3]) * 100, abs=0.3)
+    assert abs(d["12"]["season_pp"]) < 0.1 and abs(d["60"]["season_pp"]) < 0.1

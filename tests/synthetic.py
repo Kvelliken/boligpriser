@@ -18,7 +18,11 @@ def _mcode(p):
     return f"{p.year}M{p.month:02d}"
 
 
-def make_raw(raw_dir, last_q="2026Q2", last_m="2026-08", seed=1):
+# Fast årsmønster i boligprisene (log): høyest i 2. kvartal, lavest i 4.
+SEASON = {1: 0.0, 2: 0.025, 3: 0.003, 4: -0.028}
+
+
+def make_raw(raw_dir, last_q="2026Q2", last_m="2026-08", seed=1, rate_lag=0):
     rng = np.random.default_rng(seed)
     raw = Path(raw_dir)
     raw.mkdir(parents=True, exist_ok=True)
@@ -36,8 +40,10 @@ def make_raw(raw_dir, last_q="2026Q2", last_m="2026-08", seed=1):
     t = np.arange(len(quarters))
     rate = np.clip(12 - 0.045 * t + 1.5 * np.sin(t / 9) + rng.normal(0, 0.2, len(t)), 1.5, None)
     rate_q = pd.Series(rate, index=quarters)
-    rows += [("rente_utest_total", _qcode(q), v) for q, v in rate_q.items()]
-    rows += [("rente_utest_bolig", _qcode(q), v - 0.3) for q, v in rate_q.items() if q.year >= 2002]
+    # Kvartalsrenten publiseres sent: `rate_lag` kvartaler mangler i slutten
+    published = rate_q.iloc[:len(rate_q) - rate_lag]
+    rows += [("rente_utest_total", _qcode(q), v) for q, v in published.items()]
+    rows += [("rente_utest_bolig", _qcode(q), v - 0.3) for q, v in published.items() if q.year >= 2002]
     for m in months[months >= pd.Period("2013-12", "M")]:
         rows.append(("rente_ny_total", _mcode(m), rate_q.get(m.asfreq("Q"), rate_q.iloc[-1]) + 0.1))
 
@@ -60,7 +66,7 @@ def make_raw(raw_dir, last_q="2026Q2", last_m="2026-08", seed=1):
     for reg, extra in regions.items():
         idio = rng.normal(0, 0.008, len(bq))
         lp_real = np.cumsum(np.array(common) + extra + idio)
-        nominal = np.exp(lp_real) * kpi_q.reindex(bq).values
+        nominal = np.exp(lp_real + np.array([SEASON[q.quarter] for q in bq])) * kpi_q.reindex(bq).values
         nominal = nominal / nominal[(bq.year == 2015)].mean() * 100
         rows += [(f"bpi_{reg}", _qcode(q), v) for q, v in zip(bq, nominal)]
 

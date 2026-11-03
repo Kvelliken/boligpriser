@@ -57,14 +57,14 @@ data/vintages/               Datagrunnlaget slik det så ut ved hver kjøring
 ## Metode
 
 Målet er realprisendringen (boligpris deflatert med KPI) fra siste kjente
-kvartal. For hver horisont fra 1 til 24 kvartaler estimeres en egen modell
+kvartal, regnet på **sesongjusterte** priser. For hver horisont fra 1 til 24 kvartaler estimeres en egen modell
 («direkte» prognose), slik at forklaringsvariablene inngår med verdiene som er
 kjent i dag og ikke trenger egne prognoser.
 
 Ensemblet består av fire komponenter:
 
 - **ridge_lang:** Ridge-regresjon på et panel av alle regionene, med
-  variabler som har historikk fra 1990-tallet. Variablene er boliglånsrente etter
+  variabler som har lang historikk (renten fra 2002, øvrige fra 1990-tallet). Variablene er boliglånsrente etter
   skatt og inflasjon, renteendring, reell kredittvekst (K2), oljepris, prisnivå
   mot byggekostnader og mot resten av landet, og prisutviklingen siste kvartal og
   siste år.
@@ -72,6 +72,32 @@ Ensemblet består av fire komponenter:
   innbygger og vekst i husholdningenes realinntekt (fra ca. 2000).
 - **drift:** Regionens historiske gjennomsnittlige realprisvekst.
 - **uendret:** Ingen endring i realpris.
+
+### Sesongmønster
+
+Boligprisene har et fast årsmønster: i snitt ca. 2,5 % over årsnivået i 2.
+kvartal og ca. 3 % under i 4. kvartal. Mønsteret estimeres per region med
+klassisk dekomponering (`features.seasonal_factors`): avvik fra et sentrert
+glidende snitt over fire kvartaler, glattet per kvartal over syv år og sentrert
+til null innen hvert år. Leddene samsvarer godt med SSBs egen sesongjustering
+(korrelasjon 0,98–0,997).
+
+Modellen, variablene (prisvekst, prisnivå mot byggekostnader og resten av
+landet) og den historiske testen bruker sesongjusterte priser. I prognosen
+legges siste kjente mønster på igjen, slik at prognosen er sammenlignbar med
+de publiserte, ujusterte prisene og viser samme bunn mot vinteren og topp mot
+sommeren som historikken. Nedbrytningen på nettsiden viser sesongbidraget som
+egen post («Vanlig sesongsvingning»); det er nær null på hele år.
+
+### Ferske data
+
+Statistikken publiseres med ulik forsinkelse. Boliglånsrenten (kvartalsvis)
+forlenges med endringen i renten på nye lån (månedlig), eventuelt
+styringsrenten. Andre variabler som mangler for siste kvartal (befolkning,
+igangsatte boliger), får siste kjente verdi. Uten dette falt begge
+regresjonsmodellene ut av prognosen hver gang ett tall manglet.
+
+### Vekter og usikkerhet
 
 Vektene settes per horisont ut fra treffsikkerheten i en historisk test fra
 2005, krympet halvveis mot like vekter for robusthet. Usikkerhetsspennene er
@@ -100,6 +126,11 @@ tolvmånedersvekst går lineært mot 2 % over 24 måneder.
 
 ### Kjente begrensninger
 
+- Sesongleddene i den historiske testen er beregnet med hele datasettet
+  (sentrert vindu), en liten fordel modellen ikke har i sanntid.
+- Husholdningenes disponible inntekt (SSB-tabell 11020) leveres i dag uten
+  verdier, så `income_g4` droppes automatisk. Filteret bør sjekkes med
+  «Verifiser datakilder».
 - Den historiske testen bruker dagens reviderte data. Fra og med første kjøring
   lagres datagrunnlaget i `data/vintages/`, slik at en ekte sanntidstest blir
   mulig over tid.

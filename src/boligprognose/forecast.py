@@ -20,7 +20,7 @@ import pandas as pd
 
 from .features import (DISPLAY_ALIAS, EXTENDED_FEATURES, FEATURE_LABELS, FEATURE_META, GROUPS,
                        LONG_FEATURES, REGIONS, ar1_projection, build_panel, clean_levels,
-                       display_value, origin_overrides)
+                       display_value, fill_ragged_edge, origin_overrides, region_season)
 from .model import (COMPONENTS, H_MAX, accuracy_table, available_features, backtest,
                     ensemble_errors, fit_component, interval_offsets, origin_rows, weights_at)
 from .panel import load_series
@@ -46,6 +46,19 @@ def qlabel(p):
 
 def mlabel(m):
     return f"{m.year}-{m.month:02d}"
+
+
+def monthly_season(season_q, months):
+    """Sesongledd per måned: kvartalsleddene plassert midt i kvartalet, rett linje mellom.
+
+    Samme regel som brukes når historikken tegnes månedlig fra kvartalstallene.
+    """
+    mid = pd.PeriodIndex([q.asfreq("M", how="start") + 1 for q in season_q.index], freq="M")
+    s = pd.Series(season_q.values, index=mid)
+    allm = s.index.union(months)
+    num = pd.Series(s.reindex(allm).values, index=[(m - allm[0]).n for m in allm])
+    vals = num.interpolate(method="index", limit_direction="both").values
+    return pd.Series(vals, index=allm).reindex(months)
 
 
 def rnd(x, n=3):
@@ -143,6 +156,19 @@ def _alias(key):
     return DISPLAY_ALIAS.get(key, key)
 
 
+def input_note(key, region, T, carried, overrides, nat):
+    """Kort forklaring når verdien for siste kvartal ikke er et ordinært kvartalstall."""
+    if (region, key) in carried:
+        q = carried[(region, key)]
+        return f"tall for {q.quarter}. kvartal {q.year} (nyere er ikke publisert)"
+    if key in ("real_rate_at", "d_rate4", "credit_real") and overrides:
+        return "oppdatert med månedstall"
+    if key in ("real_rate_at", "d_rate4") and "rate_estimated_from" in nat.attrs \
+            and T >= nat.attrs["rate_estimated_from"]:
+        return "anslått fra renten på nye lån"
+    return ""
+
+
 # -- Hovedløp ---------------------------------------------------------------------
 def run(data_dir, asof):
     series = clean_levels(load_series(Path(data_dir) / "raw"))
@@ -177,6 +203,9 @@ def run(data_dir, asof):
     offsets = interval_offsets(ens, regions)
 
     Xo = origin_rows(panel, T).copy()
+    Xo, carried = fill_ragged_edge(Xo, panel, T, all_feats)
+    for (r, f), q in sorted(carried.items()):
+        log.info("%s/%s mangler for %s – bruker siste kjente verdi fra %s", r, f, T, q)
     overrides = origin_overrides(series, nat, T, anchor)
     for k in ("real_rate_at", "d_rate4", "credit_real"):
         if k in overrides and k in Xo:
@@ -220,6 +249,14 @@ def run(data_dir, asof):
         L = lambda f: float(interp(pts, f))  # noqa: E731
         O = lambda f: interp(offs, f)  # noqa: E731
 
+        # Sesongmønster: modellen regner på sesongjusterte priser. Det faste
+        # årsmønsteret legges på igjen, slik at prognosen er sammenlignbar med
+        # de faktiske (ujusterte) prisene. ds(m) er sesongleddet i måned m minus
+        # leddet i siste kjente kvartal.
+        season_q = region_season(series, r, T + H_MAX + 2)
+        season_m = monthly_season(season_q, pd.period_range(CHART_FROM, end_month, freq="M"))
+        ds = lambda m: float(season_m[m] - season_q[T])  # noqa: E731
+
         # Månedlig historikk (log-lineær interpolasjon mellom kvartalsmidtpunktene)
         qmid = pd.PeriodIndex([q.asfreq("M", how="start") + 1 for q in bpi.index], freq="M")
         logb = pd.Series(np.log(bpi.values), index=qmid)
@@ -230,7 +267,7 @@ def run(data_dir, asof):
         hist_log = num.interpolate(method="index").values
         hist_nom = pd.Series(np.exp(hist_log), index=full.index).reindex(hist_months)
 
-        base_nom_A = bpi_T * np.exp(L(f_a)) * kpi_A / kpi_mid
+        base_nom_A = bpi_T * np.exp(L(f_a) + ds(anchor)) * kpi_A / kpi_mid
         chart = {"months": [mlabel(m) for m in months],
                  "hist": {"nominal": [], "real": []}, "now": {"nominal": [], "real": []},
                  "fan": {"nominal": {k: [] for k in QKEYS}, "real": {k: [] for k in QKEYS}}}
@@ -244,7 +281,7 @@ def run(data_dir, asof):
                 chart["hist"]["nominal"].append(None)
                 chart["hist"]["real"].append(None)
             if mid_T <= m <= anchor:
-                lvl = bpi_T * np.exp(L(f_of(m)))
+                lvl = bpi_T * np.exp(L(f_of(m)) + ds(m))
                 chart["now"]["nominal"].append(rnd(lvl * k_m / kpi_mid))
                 chart["now"]["real"].append(rnd(lvl * kpi_A / kpi_mid))
             else:
@@ -252,7 +289,7 @@ def run(data_dir, asof):
                 chart["now"]["real"].append(None)
             if m >= anchor:
                 f = f_of(m)
-                dl = L(f) - L(f_a)
+                dl = L(f) - L(f_a) + ds(m) - ds(anchor)
                 co = change_offsets(O(f), O(f_a))
                 for k, o in zip(QKEYS, co):
                     real = base_nom_A * np.exp(dl + o)
@@ -267,7 +304,8 @@ def run(data_dir, asof):
         for label, months_ahead in USER_HORIZONS:
             m_t = anchor + months_ahead
             f_t = f_of(m_t)
-            dl = L(f_t) - L(f_a)
+            season_log = ds(m_t) - ds(anchor)
+            dl = L(f_t) - L(f_a) + season_log
             co = change_offsets(O(f_t), O(f_a))
             infl = float(kpi_path[m_t]) / kpi_A
             row = {"label": label, "months": months_ahead, "target": mlabel(m_t), "real": {}, "nominal": {}}
@@ -290,6 +328,7 @@ def run(data_dir, asof):
             h_near = int(np.clip(round(f_t), 1, H_MAX))
             decomp[str(months_ahead)] = {
                 "normal_pp": rnd(normal_pp, 2),
+                "season_pp": rnd(season_log * scale * 100, 2),
                 "items": sorted([{"key": k, "label": FEATURE_LABELS.get(k, k), "pp": rnd(v, 2)}
                                  for k, v in items.items()], key=lambda d: -abs(d["pp"] or 0)),
                 "real_pp": rnd(real_total * 100, 2),
@@ -317,7 +356,7 @@ def run(data_dir, asof):
                 "history": {"quarters": [qlabel(q) for q in hist.index],
                             "values": [rnd(display_value(key, v), 3) for v in hist.values]},
                 "current": rnd(display_value(key, cur_raw), 3),
-                "current_note": "oppdatert med månedstall" if key in ("real_rate_at", "d_rate4", "credit_real") and overrides else "",
+                "current_note": input_note(key, r, T, carried, overrides, nat),
                 "normal": rnd(display_value(key, rmeans.get((r, key))), 3),
                 "projection": None if proj is None else {
                     "quarters": [qlabel(T + i) for i in range(1, len(proj) + 1)],
@@ -339,8 +378,11 @@ def run(data_dir, asof):
             tq = [o + h for o in e.origin]
             infl = np.array([nat.loc[t, "kpi_q"] / nat.loc[o, "kpi_q"] for o, t in zip(e.origin, tq)])
             lo, hi = offsets[r][h][1], offsets[r][h][5]
-            a_r, p_r = np.exp(e.actual.values) - 1, np.exp(e.pred.values) - 1
-            l_r, h_r = np.exp(e.pred.values + lo) - 1, np.exp(e.pred.values + hi) - 1
+            # Vis faktiske og anslåtte endringer med sesongmønsteret, slik prisene publiseres
+            dseas = np.array([g["season"].get(t, 0.0) - g["season"].get(o, 0.0) for o, t in zip(e.origin, tq)])
+            act, pred = e.actual.values + dseas, e.pred.values + dseas
+            a_r, p_r = np.exp(act) - 1, np.exp(pred) - 1
+            l_r, h_r = np.exp(pred + lo) - 1, np.exp(pred + hi) - 1
             inside = (e.actual.values >= e.pred.values + lo) & (e.actual.values <= e.pred.values + hi)
             rw = bt[(bt.region == r) & (bt.h == h) & (bt.component == "uendret")]
             to_list = lambda a: [rnd(v * 100, 2) for v in a]  # noqa: E731
@@ -355,8 +397,11 @@ def run(data_dir, asof):
                 "n": int(len(e)),
             }
 
+        latest = season_q[season_q.index.year == (T + 1).year]
+        profile = {"quarters": [int(q.quarter) for q in latest.index],
+                   "pct": [rnd((np.exp(v) - 1) * 100, 2) for v in latest.values]}
         out_regions[r] = {
-            "name": REGIONS[r]["name"], "last_quarter": qlabel(T), "chart": chart,
+            "name": REGIONS[r]["name"], "last_quarter": qlabel(T), "chart": chart, "season": profile,
             "horizons": horizons, "decomposition": decomp, "inputs": inputs, "accuracy": accuracy,
         }
 

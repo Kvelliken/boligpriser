@@ -173,6 +173,10 @@ td.neg { color: var(--fjord); }
 .mb-bar.pos { background: var(--barn); }
 .mb-bar.neg { background: var(--fjord); }
 .mb-val { text-align: right; }
+.season { max-width: 40rem; }
+.season .mb-row { grid-template-columns: 11rem 1fr 4.5rem; }
+.season .mb-row small { color: var(--slate); }
+.wf-season .wf-label { font-style: italic; }
 .sensitivity { font-size: 0.92rem; margin: 1rem 0 0; max-width: 46ch; }
 
 /* Treffsikkerhet */

@@ -197,7 +197,8 @@ function drawFan() {
   document.getElementById("fan-note").textContent =
     `Prisnivå der i dag (${monthName(aT)}) = 100. Heltrukket blå linje er kjente priser til og med ${quarterText(r.last_quarter)}; ` +
     `den stiplede biten frem til i dag er anslått. ${mode === "real" ? "Justert for inflasjon til dagens kroneverdi. " : ""}` +
-    `Mørkt felt: 50 % sannsynlighet. Lyst felt: 80 % sannsynlighet.`;
+    `Mørkt felt: 50 % sannsynlighet. Lyst felt: 80 % sannsynlighet. ` +
+    `Hakkene i linjen er det vanlige årsmønsteret: prisene stiger om våren og faller mot vinteren, både i historikken og i prognosen.`;
 }
 
 function defaultReadout() {
@@ -243,6 +244,32 @@ function drawStrips() {
   el("div", {}, axisRow);
 }
 
+const QUARTER_TEXT = ["januar–mars", "april–juni", "juli–september", "oktober–desember"];
+
+function drawSeason() {
+  const r = R(), box = document.getElementById("season");
+  box.textContent = "";
+  const s = r.season;
+  if (!s || !s.pct || s.pct.length !== 4) { box.closest(".block").hidden = true; return; }
+  box.closest(".block").hidden = false;
+  const hiQ = s.pct.indexOf(Math.max(...s.pct)), loQ = s.pct.indexOf(Math.min(...s.pct));
+  document.getElementById("season-note").textContent =
+    `Boligprisene svinger med årstidene. I ${r.name} ligger prisene typisk ${NB1.format(Math.abs(s.pct[hiQ]))} % over ` +
+    `årsgjennomsnittet i ${QUARTER_TEXT[hiQ]} og ${NB1.format(Math.abs(s.pct[loQ]))} % under i ${QUARTER_TEXT[loQ]}. ` +
+    "Prognosen tar med dette mønsteret. Derfor går den ned mot vinteren og opp mot våren, selv om den underliggende " +
+    "utviklingen er jevn. Over hele år jevner svingningene seg ut. SSB måler prisene som snitt per kvartal, " +
+    "så månedene mellom er tegnet med rett linje. Derfor ligger bunnen i grafen i november, midt i 4. kvartal.";
+  const mx = Math.max(0.5, ...s.pct.map(Math.abs));
+  s.pct.forEach((v, i) => {
+    const row = el("div", { class: "mb-row" }, box);
+    const lab = el("span", { text: `${s.quarters[i]}. kvartal ` }, row);
+    el("small", { text: QUARTER_TEXT[i] }, lab);
+    const tr = el("span", { class: "mb-track" }, row);
+    el("span", { class: `mb-bar ${v >= 0 ? "pos" : "neg"}`, style: `width:${(Math.abs(v) / mx) * 50}%;${v >= 0 ? "left:50%" : "right:50%"}` }, tr);
+    el("span", { class: "mb-val", text: signed(v) }, row);
+  });
+}
+
 // ---------- Fane: Hva driver prognosen ----------
 function horizonPickers() {
   document.querySelectorAll(".horizon-pick").forEach(box => {
@@ -260,6 +287,7 @@ function drawWaterfall() {
   const small = d.items.filter(i => Math.abs(i.pp) < 0.05);
   const big = d.items.filter(i => Math.abs(i.pp) >= 0.05);
   const steps = [{ label: `Normal utvikling for ${r.name}`, pp: d.normal_pp, kind: "base" }];
+  if (d.season_pp != null && Math.abs(d.season_pp) >= 0.05) steps.push({ label: "Vanlig sesongsvingning", pp: d.season_pp, kind: "season" });
   big.forEach(i => steps.push({ label: i.label, pp: i.pp, kind: "step", key: i.key }));
   if (small.length) steps.push({ label: `Andre variabler (${small.length})`, pp: small.reduce((s, i) => s + i.pp, 0), kind: "step" });
   steps.push({ label: "Endring justert for inflasjon", pp: d.real_pp, kind: "total" });
@@ -294,6 +322,7 @@ function drawWaterfall() {
   document.getElementById("waterfall-note").textContent =
     `Prisendring de neste ${hzLabel === "6 mnd" ? "6 månedene" : hzLabel === "1 år" ? "12 månedene" : hzLabel.replace(" år", " årene")} fra ${monthName(mIndex(state.data.anchor_month))}. ` +
     "Normal utvikling er det modellen venter hvis alle forklaringsvariabler lå på sitt historiske snitt for området, inkludert den historiske trenden. " +
+    "Sesongsvingningen er forskjellen i det vanlige årsmønsteret mellom startmåneden og målmåneden; over hele år er den nær null. " +
     "Bidragene er vektet slik modellene faktisk teller i prognosen.";
 
   const wbox = document.getElementById("weights");
@@ -428,7 +457,7 @@ function drawAccuracy() {
   lg.innerHTML = `<span class="lg lg-actual">Faktisk</span><span class="lg lg-pred">Modellens anslag</span><span class="lg lg-band">80 %-spenn</span>`;
   const add = (dt, dd) => { el("dt", { text: dt }, facts); el("dd", { text: dd }, facts); };
   add("Gjennomsnittlig bom, justert for inflasjon", `${NB1.format(a.mae)} prosentpoeng`);
-  if (a.mae_uendret != null) add("Til sammenligning: å anta uendret realpris", `${NB1.format(a.mae_uendret)} prosentpoeng`);
+  if (a.mae_uendret != null) add("Til sammenligning: å anta uendret realpris (bortsett fra vanlig sesongsvingning)", `${NB1.format(a.mae_uendret)} prosentpoeng`);
   add("Utfall innenfor 80 %-spennet", `${NB0.format(a.coverage)} %`);
   add("Antall prognoser", NB0.format(a.n));
 }
@@ -438,9 +467,11 @@ function drawAbout() {
   const d = state.data, a = d.assumptions;
   const p = [
     `Prognosene regnes fra ${monthName(mIndex(d.anchor_month))}, som er siste måned med prisstatistikk fra SSB. SSBs boligprisindeks kommer bare hvert kvartal og er kjent til og med ${quarterText(d.last_quarter)}. Prisene mellom dette og i dag er anslått av modellen, og vises stiplet i diagrammet.`,
-    "For hver horisont er det laget egne modeller for endringen i inflasjonsjustert pris. Hovedmodellen bygger på variabler med historikk fra 1990-tallet: boliglånsrenten etter skatt og inflasjon, renteendringer, kredittvekst, oljeprisen, prisnivået sammenlignet med byggekostnader og resten av landet, og prisutviklingen den siste tiden. Den utvidede modellen bruker i tillegg befolkningsvekst, boligbygging og husholdningenes inntektsvekst, som har kortere historikk. Disse kombineres med to enkle referanser, historisk gjennomsnittlig vekst og uendret pris, og vektes etter hvor godt de har truffet tidligere.",
-    "Modellen bruker dagens verdi av hver forklaringsvariabel. Den har lært av historien hvordan priser har utviklet seg videre fra lignende situasjoner, og trenger derfor ikke egne prognoser for renter eller befolkning. Fremskrivningene som vises under hver variabel, er en illustrasjon av hvordan variabelen typisk har beveget seg videre.",
-    "Spennene bygger på hvor mye modellen faktisk har bommet når den er testet bakover i tid fra 2005, med bare de dataene som var kjent på hvert tidspunkt. Fanen Treffsikkerhet viser disse prognosene mot det som faktisk skjedde.",
+    "Boligprisene følger et fast årsmønster: de stiger mest om våren og faller mot slutten av året. Modellen fjerner først dette mønsteret fra de historiske prisene, slik at den kan se den underliggende utviklingen. I prognosen legges mønsteret på igjen. Derfor har prognosen de samme hakkene som historikken, med en bunn mot vinteren og en topp mot sommeren. Mønsteret beregnes for hvert område og får endre seg langsomt over tid.",
+    "For hver horisont er det laget egne modeller for endringen i inflasjonsjustert pris. Hovedmodellen bygger på boliglånsrenten etter skatt og inflasjon, renteendringer, kredittvekst, oljeprisen, prisnivået sammenlignet med byggekostnader og resten av landet, og prisutviklingen den siste tiden. Den utvidede modellen bruker i tillegg befolkningsvekst og boligbygging. Disse kombineres med to enkle referanser, historisk gjennomsnittlig vekst og uendret pris, og vektes etter hvor godt de har truffet tidligere.",
+    "Modellen bruker dagens verdi av hver forklaringsvariabel. Den har lært av historien hvordan prisene har utviklet seg videre fra lignende situasjoner, og trenger derfor ikke egne prognoser for renter eller befolkning. Fremskrivningene som vises under hver variabel, er bare en illustrasjon av hvordan variabelen typisk har beveget seg videre.",
+    "Statistikken kommer ikke samtidig. Når et tall for siste kvartal ennå ikke er publisert, bruker modellen siste kjente tall. Boliglånsrenten for siste kvartal anslås ut fra renten på nye lån, som kommer hver måned. Slik kan alle modellene brukes hele tiden.",
+    "Spennene bygger på hvor mye modellen faktisk har bommet når den er testet bakover i tid fra 2005, med bare de dataene som var kjent på hvert tidspunkt. Fanen Treffsikkerhet viser disse prognosene mot det som faktisk skjedde. Modellen treffer i snitt litt bedre enn å anta uendret pris, men fordelen er beskjeden. Spennene er derfor brede, særlig på lang sikt.",
     `Prisene i kroner er regnet ut fra prognosen for inflasjonsjustert pris og en antakelse om at prisveksten går fra dagens ${NB1.format(a.inflation_now)} % til inflasjonsmålet på ${NB0.format(a.inflation_target)} % i løpet av to år. Usikkerheten i inflasjonen er ikke med i spennet.`,
     "Modellen vet ingenting om fremtidige rentebeslutninger, endringer i skatt og regulering, eller krefter som ikke finnes i dataene, som at mange utleiere selger samtidig. Bruk prognosene som et utgangspunkt for egne vurderinger.",
   ];
@@ -493,7 +524,7 @@ function renderTab() {
   if (!isGroup) document.getElementById(panels[state.tab]).hidden = false;
   else document.getElementById("panel-gruppe").setAttribute("aria-labelledby", `tab-${state.tab}`);
   horizonPickers();
-  if (state.tab === "prognose") { drawFan(); drawStrips(); }
+  if (state.tab === "prognose") { drawFan(); drawStrips(); drawSeason(); }
   else if (state.tab === "drivere") drawWaterfall();
   else if (state.tab === "treff") drawAccuracy();
   else if (state.tab === "om") drawAbout();
